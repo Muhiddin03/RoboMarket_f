@@ -44,32 +44,37 @@ export default function ContactPage() {
     }
   };
 
-  const INFO = [
-    {
-      icon: Phone, label: 'Telefon',
-      value: shopInfo.phone || '+998 91 355 14 03',
-      sub: 'Dush-Shan 9:00-18:00',
-      color: 'text-violet-400 bg-violet-900/20 border-violet-800/40',
-    },
-    {
-      icon: Send, label: 'Telegram',
-      value: shopInfo.telegram || '@RoboMarket_Admin',
-      sub: 'Tezda javob beramiz',
-      color: 'text-sky-400 bg-sky-900/20 border-sky-800/40',
-    },
-    {
-      icon: MapPin, label: 'Manzil',
-      value: shopInfo.address || 'Namangan viloyati',
-      sub: "O'zbekiston",
-      color: 'text-indigo-400 bg-indigo-900/20 border-indigo-800/40',
-    },
-    {
-      icon: Clock, label: 'Ish vaqti',
-      value: 'Dush-Shanba: 9:00-18:00',
-      sub: 'Yakshanba: Dam olish',
-      color: 'text-amber-400 bg-amber-900/20 border-amber-800/40',
-    },
-  ];
+const tgUsername = (shopInfo.telegram || '@RoboMarket_Admin').replace(/^@/, '');
+const INFO = [
+  {
+    icon: Phone, label: 'Telefon',
+    value: shopInfo.phone || '+998 91 355 14 03',
+    sub: 'Dush-Shan 9:00-18:00',
+    color: 'text-violet-400 bg-violet-900/20 border-violet-800/40',
+    href: `tel:${(shopInfo.phone || '+998913551403').replace(/\s/g, '')}`,
+  },
+  {
+    icon: Send, label: 'Telegram',
+    value: shopInfo.telegram || '@RoboMarket_Admin',
+    sub: 'Tez javob — bosing!',
+    color: 'text-sky-400 bg-sky-900/20 border-sky-800/40',
+    href: `https://t.me/${tgUsername}`,
+  },
+  {
+    icon: MapPin, label: 'Manzil',
+    value: shopInfo.address || 'Namangan viloyati',
+    sub: "O'zbekiston",
+    color: 'text-indigo-400 bg-indigo-900/20 border-indigo-800/40',
+    href: null,
+  },
+  {
+    icon: Clock, label: 'Ish vaqti',
+    value: 'Dush-Shanba: 9:00-18:00',
+    sub: 'Yakshanba: Dam olish',
+    color: 'text-amber-400 bg-amber-900/20 border-amber-800/40',
+    href: null,
+  },
+];
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
@@ -83,21 +88,31 @@ export default function ContactPage() {
 
         {/* Info kartalar */}
         <div className="space-y-3">
-          {INFO.map(({ icon: Icon, label, value, sub, color }) => {
-            const [textColor, ...bgBorder] = color.split(' ');
-            return (
-              <div key={label} className={`card p-4 flex items-start gap-4 border`}>
-                <div className={`w-11 h-11 ${bgBorder.join(' ')} rounded-xl flex items-center justify-center flex-shrink-0 border`}>
-                  <Icon size={18} className={textColor} />
-                </div>
-                <div>
-                  <div className="text-xs font-black text-slate-500 uppercase tracking-wider">{label}</div>
-                  <div className="font-bold text-slate-200 mt-0.5">{value}</div>
-                  <div className="text-sm text-slate-600">{sub}</div>
-                </div>
-              </div>
-            );
-          })}
+          {INFO.map(({ icon: Icon, label, value, sub, color, href }) => {
+  const [textColor, ...bgBorder] = color.split(' ');
+  const content = (
+    <>
+      <div className={`w-11 h-11 ${bgBorder.join(' ')} rounded-xl flex items-center justify-center flex-shrink-0 border`}>
+        <Icon size={18} className={textColor} />
+      </div>
+      <div>
+        <div className="text-xs font-black text-slate-500 uppercase tracking-wider">{label}</div>
+        <div className="font-bold text-slate-200 mt-0.5">{value}</div>
+        <div className="text-sm text-slate-600">{sub}</div>
+      </div>
+    </>
+  );
+  return href ? (
+    <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+      className="card p-4 flex items-start gap-4 border hover:border-violet-700/50 transition-colors">
+      {content}
+    </a>
+  ) : (
+    <div key={label} className="card p-4 flex items-start gap-4 border">
+      {content}
+    </div>
+  );
+})}
         </div>
 
         {/* Forma */}

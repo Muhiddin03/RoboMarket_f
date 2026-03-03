@@ -38,17 +38,23 @@ export default function Footer() {
           <div>
             <h4 className="font-black text-white mb-4 text-sm uppercase tracking-wide">Aloqa</h4>
             <div className="space-y-3 text-sm">
-              {[
-                [Phone, '+998 91 355 14 03'],
-                [Send, '@RoboMarket_Admin'],
-                [MapPin, 'Namangan viloyati, Namangan shahri'],
-                [Clock, 'Dush-Shan: 9:00-18:00'],
-              ].map(([Icon, t], i) => (
-                <div key={i} className="flex items-start gap-2.5 text-slate-500">
-                  <Icon size={14} className="text-violet-400 flex-shrink-0 mt-0.5"/>
-                  <span>{t}</span>
-                </div>
-              ))}
+              <a href="tel:+998913551403" className="flex items-start gap-2.5 text-slate-500 hover:text-violet-400 transition-colors">
+  <Phone size={14} className="text-violet-400 flex-shrink-0 mt-0.5"/>
+  <span>+998 91 355 14 03</span>
+</a>
+<a href="https://t.me/RoboMarket_Admin" target="_blank" rel="noopener noreferrer"
+  className="flex items-start gap-2.5 text-slate-500 hover:text-violet-400 transition-colors">
+  <Send size={14} className="text-violet-400 flex-shrink-0 mt-0.5"/>
+  <span>@RoboMarket_Admin</span>
+</a>
+<div className="flex items-start gap-2.5 text-slate-500">
+  <MapPin size={14} className="text-violet-400 flex-shrink-0 mt-0.5"/>
+  <span>Namangan, Namangan viloyati</span>
+</div>
+<div className="flex items-start gap-2.5 text-slate-500">
+  <Clock size={14} className="text-violet-400 flex-shrink-0 mt-0.5"/>
+  <span>Dush-Shan: 9:00-18:00</span>
+</div>
             </div>
           </div>
         </div>
