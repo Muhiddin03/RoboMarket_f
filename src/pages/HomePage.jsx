@@ -95,7 +95,7 @@ export default function HomePage() {
             {/* Text */}
             <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
               <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-bold px-4 py-2 rounded-full mb-5">
-                <Cpu size={11} /> O'zbekistondagi Robototexnika Do'koni
+                <Cpu size={11} /> O'zbekistondagi online Robototexnika Do'koni
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.1] mb-4">
                 Robototexnika<br />
