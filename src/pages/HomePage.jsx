@@ -189,7 +189,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
-            {categories.slice(0, 8).map((cat, i) => (
+            {(Array.isArray(categories) ? categories : []).slice(0, 8).map((cat, i) => (
               <Link key={cat.id} to={`/products?category=${cat.slug}`}
                 className="relative overflow-hidden rounded-xl group aspect-square">
                 {cat.image_url
