@@ -73,10 +73,10 @@ export default function HomePage() {
       productsApi.getAll({ limit: 1 }),
       heroCardsApi.get(),
     ]).then(([hr, nr, cr, all, hc]) => {
-      setProducts(hr.data.products || []);
-      setNewProducts(nr.data.products || []);
-      setCategories(cr.data || []);
-      setTotalProducts(all.data.total || 0);
+      setProducts(Array.isArray(hr.data?.products) ? hr.data.products : []);
+      setNewProducts(Array.isArray(nr.data?.products) ? nr.data.products : []);
+      setCategories(Array.isArray(cr.data) ? cr.data : []);
+      setTotalProducts(all.data?.total || 0);
       setHeroCards(Array.isArray(hc.data) ? hc.data : []);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
