@@ -297,7 +297,7 @@ export default function CartPage() {
               </div>
               {deliveryType === 'delivery' && dc > 0 && (
                 <p className="text-xs text-amber-400 bg-amber-900/20 border border-amber-800/40 rounded-xl p-2">
-                  Yana {Number(FREE_DELIVERY - subtotal).toLocaleString('uz-UZ')} so'm qo'shsangiz yetkazish bepul!
+                  Yana {Number(FREE_DELIVERY - subtotal).toLocaleString('uz-UZ')} so'mlik mahsulot olsangiz yetkazib berish bepul bo'ladi!
                 </p>
               )}
               <div className="flex justify-between font-black text-base pt-2 border-t border-slate-800">
