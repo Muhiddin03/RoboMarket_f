@@ -77,7 +77,7 @@ export default function HomePage() {
       setNewProducts(nr.data.products || []);
       setCategories(cr.data || []);
       setTotalProducts(all.data.total || 0);
-      setHeroCards(hc.data || []);
+      setHeroCards(Array.isArray(hc.data) ? hc.data : []);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -132,7 +132,7 @@ export default function HomePage() {
 
             {/* Hero cards */}
             <div className="hidden lg:grid grid-cols-2 gap-3">
-              {(heroCards.length > 0 ? heroCards : [
+              {(Array.isArray(heroCards) && heroCards.length > 0 ? heroCards : [
                 { id:1, title:'Arduino Uno R3', subtitle:"89,000 so'm", icon:'CircuitBoard' },
                 { id:2, title:'ESP32 WiFi', subtitle:"65,000 so'm", icon:'Wifi' },
                 { id:3, title:'Sensor Kit', subtitle:"185,000 so'm", icon:'Layers' },
