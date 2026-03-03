@@ -53,8 +53,8 @@ export default function ContactPage() {
     },
     {
       icon: Send, label: 'Telegram',
-      value: shopInfo.telegram || '@robomarket_uz',
-      sub: 'Tez javob',
+      value: shopInfo.telegram || '@RoboMarket_Admin',
+      sub: 'Tezda javob beramiz',
       color: 'text-sky-400 bg-sky-900/20 border-sky-800/40',
     },
     {

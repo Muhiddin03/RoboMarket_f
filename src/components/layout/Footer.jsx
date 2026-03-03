@@ -16,7 +16,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed text-slate-500">
-              Namangan shahridagi robototexnika va elektronika mahsulotlari do'koni.
+              Namangan shahridagi robototexnika va elektronika mahsulotlari online do'koni.
             </p>
           </div>
           <div>
@@ -40,8 +40,8 @@ export default function Footer() {
             <div className="space-y-3 text-sm">
               {[
                 [Phone, '+998 91 355 14 03'],
-                [Send, '@robomarket_uz'],
-                [MapPin, 'Namangan, Namangan viloyati'],
+                [Send, '@RoboMarket_Admin'],
+                [MapPin, 'Namangan viloyati, Namangan shahri'],
                 [Clock, 'Dush-Shan: 9:00-18:00'],
               ].map(([Icon, t], i) => (
                 <div key={i} className="flex items-start gap-2.5 text-slate-500">
@@ -54,7 +54,7 @@ export default function Footer() {
         </div>
         <div className="border-t border-slate-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <span>2025 RoboMarket. Barcha huquqlar himoyalangan.</span>
-          <span className="text-violet-400 font-bold">Namangan, O'zbekiston</span>
+          {/* <span className="text-violet-400 font-bold">Namangan, O'zbekiston</span> */}
         </div>
       </div>
     </footer>

@@ -95,14 +95,14 @@ export default function HomePage() {
             {/* Text */}
             <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
               <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-bold px-4 py-2 rounded-full mb-5">
-                <Cpu size={11} /> O'zbekistondagi Nr.1 Robototexnika Do'koni
+                <Cpu size={11} /> O'zbekistondagi Robototexnika Do'koni
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.1] mb-4">
-                Elektronika va<br />
-                <span className="text-gradient">Robototexnika</span>
+                Robototexnika<br />
+                <span className="text-gradient">va Elektronika</span>
               </h1>
               <p className="text-sm text-slate-400 mb-6 leading-relaxed max-w-md">
-                Arduino, sensorlar, motorlar va komponentlar. Namangan viloyatidan butun O'zbekistonga yetkazib beramiz.
+                Arduino, sensorlar, motorlar va turli xil komponentlar. Namangan viloyatidan butun O'zbekistonga yetkazib beramiz.
               </p>
               <div className="flex items-center gap-3 flex-wrap justify-center lg:justify-start">
                 <Link to="/products" className="btn-primary px-6 py-3">
@@ -230,11 +230,11 @@ export default function HomePage() {
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-950/50 to-indigo-950/50 border border-violet-800/25 p-7 md:p-10">
           <div className="absolute inset-0 opacity-[0.02]" style={{backgroundImage:'linear-gradient(#8b5cf6 1px,transparent 1px),linear-gradient(90deg,#8b5cf6 1px,transparent 1px)',backgroundSize:'32px 32px'}}/>
           <div className="relative max-w-xl">
-            <div className="text-violet-400 text-sm font-bold mb-3 flex items-center gap-2"><Package size={14}/> 500+ mahsulot mavjud</div>
+            <div className="text-violet-400 text-sm font-bold mb-3 flex items-center gap-2"><Package size={14}/> 300+ mahsulot mavjud</div>
             <h2 className="text-xl md:text-2xl font-black text-white mb-4">Loyihangiz uchun kerakli komponentlarni toping</h2>
             <div className="flex gap-3 flex-wrap">
               <Link to="/products" className="btn-primary">Xarid qilish <ArrowRight size={14}/></Link>
-              <Link to="/blog" className="btn-outline">Loyiha g'oyalari</Link>
+              <Link to="/blog" className="btn-outline">Yangliklar va Loyihalar yasash</Link>
             </div>
           </div>
         </div>
