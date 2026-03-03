@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: #07050f;
+    color: #e0dcf0;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3,h4,h5 { font-family: 'Sora', sans-serif; font-weight: 800; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm
+           hover:from-violet-500 hover:to-indigo-500 active:scale-95 transition-all duration-150
+           inline-flex items-center gap-2 shadow-lg shadow-violet-900/50;
+  }
+  .btn-outline {
+    @apply border border-slate-600 text-slate-300 px-5 py-2.5 rounded-xl font-bold text-sm
+           hover:bg-slate-800 hover:border-violet-600/50 active:scale-95 transition-all inline-flex items-center gap-2;
+  }
+  .btn-ghost {
+    @apply text-slate-400 px-4 py-2 rounded-xl text-sm hover:bg-slate-800
+           transition-colors inline-flex items-center gap-2;
+  }
+  .card {
+    @apply bg-[#100d1a] rounded-2xl border border-slate-800/80;
+  }
+  .input {
+    @apply w-full border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200
+           focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20
+           placeholder:text-slate-600 transition-all bg-[#13101f] font-medium;
+  }
+  .select {
+    @apply w-full border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200
+           focus:outline-none focus:border-violet-500 bg-[#13101f] cursor-pointer font-medium;
+  }
+  .badge-new     { @apply bg-violet-900/50 text-violet-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-violet-700/50; }
+  .badge-sale    { @apply bg-rose-900/50 text-rose-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-rose-800/60; }
+  .badge-hot     { @apply bg-orange-900/50 text-orange-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-orange-800/60; }
+  .badge-popular { @apply bg-indigo-900/50 text-indigo-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-indigo-700/50; }
+  .section-title { @apply text-xl font-black text-white; }
+  .page-container { @apply max-w-7xl mx-auto px-4; }
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #07050f; }
+::-webkit-scrollbar-thumb { background: linear-gradient(#7c3aed, #4338ca); border-radius: 4px; }
+
+.skeleton {
+  background: linear-gradient(90deg, #110e1c 25%, #17132a 50%, #110e1c 75%);
+  background-size: 200% 100%;
+  animation: sk 1.4s infinite;
+}
+@keyframes sk { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+.text-gradient {
+  background: linear-gradient(135deg, #a78bfa, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+pre { background: #0d0b16; border: 1px solid #1e1a2e; border-radius: 12px; padding: 16px; overflow-x: auto; }
+code { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #a78bfa; }
+pre code { color: #e0dcf0; }
