@@ -54,7 +54,7 @@ export default function Footer() {
         </div>
         <div className="border-t border-slate-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
           <span>2025 RoboMarket. Barcha huquqlar himoyalangan.</span>
-          {/* <span className="text-violet-400 font-bold">Namangan, O'zbekiston</span> */}
+          <span className="text-violet-400 font-bold">Namangan, O'zbekiston</span>
         </div>
       </div>
     </footer>
