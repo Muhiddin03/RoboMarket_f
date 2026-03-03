@@ -101,7 +101,7 @@ export default function CartPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <BackButton />
-      {/* Header */
+      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         {step === 1 && (
           <button onClick={() => setStep(0)}

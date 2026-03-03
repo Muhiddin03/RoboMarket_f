@@ -51,7 +51,7 @@ export default function ProductsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
       <BackButton />
-      {/* Header */
+      {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-5 flex-wrap">
         <div>
           <h1 className="text-2xl font-black text-white font-display">
