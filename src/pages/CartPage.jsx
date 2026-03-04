@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { maskPhone, isValidPhone, handlePhoneChange } from '../utils/phone';
 import BackButton from '../components/ui/BackButton';
 import { Link } from 'react-router-dom';
 import { Trash2, Minus, Plus, CheckCircle, Truck, Store, CreditCard, Banknote, ArrowLeft, ShoppingCart } from 'lucide-react';
@@ -41,7 +42,7 @@ export default function CartPage() {
     const trimPhone = (phone || '').trim();
 
     if (!trimName) { toast.error('Ismingizni kiriting'); return; }
-    if (!trimPhone || trimPhone.length < 7) { toast.error('Telefon raqamini kiriting'); return; }
+    if (!isValidPhone(trimPhone)) { toast.error("Telefon: +998 XX XXX XX XX formatida kiriting"); return; }
     if (deliveryType === 'delivery' && !city) { toast.error('Viloyatni tanlang'); return; }
     if (deliveryType === 'delivery' && !address.trim()) { toast.error('Manzilni kiriting'); return; }
 
@@ -194,11 +195,7 @@ export default function CartPage() {
                   <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Telefon *</label>
                   <input className="input" placeholder="+998 90 123 45 67"
                     value={phone}
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (!val.startsWith("+998")) setPhone("+998 ");
-                      else setPhone(val);
-                    }}
+                    onChange={e => handlePhoneChange(e, setPhone)}maxLength={17}
                     type="tel" autoComplete="tel" />
                 </div>
               </div>

@@ -4,10 +4,11 @@ import { settingsApi } from '../utils/api';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 import BackButton from '../components/ui/BackButton';
+import { maskPhone, isValidPhone } from '../utils/phone';
 
 export default function ContactPage() {
   const [form, setForm] = useState({
-    name: '', phone: '', subject: 'Mahsulot haqida savol', message: ''
+    name: '', phone: '+998 ', subject: 'Mahsulot haqida savol', message: ''
   });
   const [sending, setSending] = useState(false);
   const [shopInfo, setShopInfo] = useState({});
@@ -21,7 +22,7 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim())    return toast.error('Ismingizni kiriting');
-    if (!form.phone.trim())   return toast.error('Telefon raqamini kiriting');
+    if (!isValidPhone(form.phone)) return toast.error("Telefon: +998 XX XXX XX XX formatida kiriting");
     if (!form.message.trim()) return toast.error('Xabar yozing');
 
     setSending(true);
@@ -129,7 +130,7 @@ const INFO = [
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Telefon *</label>
-              <input className="input" placeholder="+998..." type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} maxLength={20} />
+              <input className="input" placeholder="+998..." type="tel" value={form.phone}onChange={e => set('phone', maskPhone(e.target.value))} maxLength={17} />
             </div>
           </div>
 
