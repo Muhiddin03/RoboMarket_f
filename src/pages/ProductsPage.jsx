@@ -36,7 +36,7 @@ export default function ProductsPage() {
     setLoading(true);
     try {
       const [pr, cr] = await Promise.all([
-        productsApi.getAll({ search, category, badge, sort: sortField, order: sortDir, limit: 60 }),
+        productsApi.getAll({ search, category, badge, sort: sortField, order: sortDir, limit: 600 }),
         categoriesApi.getAll(),
       ]);
       setProducts(pr.data.products || []);
