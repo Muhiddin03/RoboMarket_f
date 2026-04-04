@@ -6,7 +6,7 @@ import { productsApi, categoriesApi } from '../utils/api';
 import ProductGrid from '../components/product/ProductGrid';
 
 const SORT_OPTIONS = [
-  { v: 'id_desc', label: 'Yangi kelganlar' },
+  { v: 'id_desc', label: 'Yangiggggg kelganlar' },
   { v: 'price_asc', label: 'Narx: arzondan' },
   { v: 'price_desc', label: 'Narx: qimmatdan' },
   { v: 'name_asc', label: 'A-Z' },
