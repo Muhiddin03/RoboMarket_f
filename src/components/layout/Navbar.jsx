@@ -150,23 +150,66 @@ export default function Navbar() {
         )}
 
         {/* Mobil menyu */}
-        {menuOpen && (
-          <div className="md:hidden border-t border-slate-800 py-2 space-y-0.5">
-            {NAV_LINKS.map(({ to, label, icon: Icon }) => (
-              <Link key={to} to={to} onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors
-                  ${isActive(to) ? 'bg-violet-900/40 text-gradient' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
-                <Icon size={15} />{label}
-              </Link>
-            ))}
-            {isAuthenticated && (
-              <Link to="/robomarket-dashboard-2025" onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-violet-400 hover:bg-violet-900/20 transition-colors">
-                <Settings size={15} />Admin panel
-              </Link>
-            )}
-          </div>
+        {/* Mobil menyu */}
+{menuOpen && (
+  <div className="md:hidden fixed inset-0 top-14 z-40 bg-[#07050f]/98 backdrop-blur-xl">
+    <div className="flex flex-col h-full px-4 pt-6 pb-10">
+
+      {/* Qidiruv */}
+      <form onSubmit={handleSearch} className="mb-6">
+        <div className="relative">
+          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input value={q} onChange={e => setQ(e.target.value)}
+            placeholder="Mahsulot qidirish..."
+            className="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-2xl text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-violet-500" />
+        </div>
+      </form>
+
+      {/* Nav linklar */}
+      <nav className="flex flex-col gap-1 flex-1">
+        {NAV_LINKS.map(({ to, label, icon: Icon }) => (
+          <Link key={to} to={to} onClick={() => setMenuOpen(false)}
+            className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-base font-bold transition-all
+              ${isActive(to)
+                ? 'bg-violet-900/40 text-violet-400 border border-violet-800/40'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0
+              ${isActive(to) ? 'bg-violet-700/30' : 'bg-slate-800'}`}>
+              <Icon size={18} />
+            </div>
+            {label}
+          </Link>
+        ))}
+        {isAuthenticated && (
+          <Link to="/robomarket-dashboard-2025" onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-4 px-4 py-4 rounded-2xl text-base font-bold text-violet-400 hover:bg-violet-900/20 transition-all border border-violet-800/20">
+            <div className="w-9 h-9 rounded-xl bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+              <Settings size={18} />
+            </div>
+            Admin panel
+          </Link>
         )}
+      </nav>
+
+      {/* Pastki qism */}
+      <div className="border-t border-slate-800 pt-5 mt-4">
+        <Link to="/cart" onClick={() => setMenuOpen(false)}
+          className="flex items-center justify-between px-4 py-3.5 bg-violet-600 rounded-2xl text-white font-bold text-sm">
+          <div className="flex items-center gap-3">
+            <ShoppingCart size={18} />
+            Savat
+          </div>
+          {totalItems > 0 && (
+            <span className="bg-white text-violet-600 text-xs font-black px-2.5 py-0.5 rounded-full">
+              {totalItems}
+            </span>
+          )}
+        </Link>
+      </div>
+
+    </div>
+  </div>
+)}
       </div>
     </header>
   );
