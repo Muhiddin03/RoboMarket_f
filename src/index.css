@@ -42,10 +42,10 @@
     @apply w-full border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200
            focus:outline-none focus:border-violet-500 bg-[#13101f] cursor-pointer font-medium;
   }
-  .badge-new     { @apply bg-violet-900/50 text-violet-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-violet-700/50; }
-  .badge-sale    { @apply bg-rose-900/50 text-rose-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-rose-800/60; }
-  .badge-hot     { @apply bg-orange-900/50 text-orange-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-orange-800/60; }
-  .badge-popular { @apply bg-indigo-900/50 text-indigo-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-indigo-700/50; }
+  .badge-new     { @apply bg-violet-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full; }
+  .badge-sale    { @apply bg-rose-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full; }
+  .badge-hot     { @apply bg-orange-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full; }
+  .badge-popular { @apply bg-indigo-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full; }
   .section-title { @apply text-xl font-black text-white; }
   .page-container { @apply max-w-7xl mx-auto px-4; }
 }
