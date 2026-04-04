@@ -76,7 +76,7 @@ export default function Navbar() {
           </button>
 
           {/* Qidiruv — desktop */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xs ml-3">
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 ml-3">
             <div className="relative w-full">
               <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
               <input
@@ -100,7 +100,7 @@ export default function Navbar() {
           </nav>
 
           {/* O'ng ikonlar */}
-          <div className="flex items-center gap-1.5 ml-1 md:ml-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 ml-auto flex-shrink-0">
 
             {/* Qidiruv — mobil */}
             <button onClick={() => setSearchOpen(!searchOpen)}
