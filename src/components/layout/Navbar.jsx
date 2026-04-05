@@ -1,6 +1,6 @@
-import { useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, Cpu, Package, Grid3X3, BookOpen, Home, MessageCircle } from 'lucide-react';
+import { ShoppingCart, Search, Cpu, Package, Grid3X3, BookOpen, Home, MessageCircle } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -33,6 +33,16 @@ export default function Navbar() {
       tapCount.current = 0;
     }, 700);
   }, [navigate]);
+
+  const [q, setQ] = useState('');
+
+const handleSearch = (e) => {
+  e.preventDefault();
+  if (q.trim()) {
+    navigate(`/products?search=${encodeURIComponent(q.trim())}`);
+    setQ('');
+  }
+};
 
   const isActive = (to) => {
     if (to === '/') return location.pathname === '/';
@@ -81,27 +91,39 @@ export default function Navbar() {
         </div>
       </header>
 
+      
       {/* MOBIL TOP */}
-      <header className="md:hidden bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <div className="flex items-center h-12 px-4 justify-between">
-          <button onClick={handleLogoClick} className="flex items-center gap-2 select-none">
-            <div className="w-7 h-7 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Cpu size={14} className="text-white" />
-            </div>
-            <span className="font-black text-white text-sm">Robo<span className="text-gradient">Market</span></span>
-          </button>
+<header className="md:hidden bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+  <div className="flex items-center h-12 px-3 gap-2">
+    <button onClick={handleLogoClick} className="flex items-center gap-1.5 flex-shrink-0 select-none">
+      <div className="w-7 h-7 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center">
+        <Cpu size={14} className="text-white" />
+      </div>
+      <span className="font-black text-white text-sm">Robo<span className="text-gradient">Market</span></span>
+    </button>
 
-          <Link to="/cart" className="relative flex items-center gap-1.5 px-3 py-1.5 bg-violet-600 rounded-xl text-white text-xs font-bold">
-            <ShoppingCart size={15} />
-            Savat
-            {totalItems > 0 && (
-              <span className="min-w-[18px] h-[18px] bg-white text-violet-600 text-[10px] font-black rounded-full flex items-center justify-center px-1">
-                {totalItems > 9 ? '9+' : totalItems}
-              </span>
-            )}
-          </Link>
-        </div>
-      </header>
+    {/* Search */}
+    <form onSubmit={handleSearch} className="flex-1">
+      <div className="relative">
+        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+        <input
+          value={q} onChange={e => setQ(e.target.value)}
+          placeholder="Mahsulot qidirish..."
+          className="w-full pl-8 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-violet-500"
+        />
+      </div>
+    </form>
+
+    <Link to="/cart" className="relative flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-slate-400">
+      <ShoppingCart size={17} />
+      {totalItems > 0 && (
+        <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-violet-600 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1">
+          {totalItems > 9 ? '9+' : totalItems}
+        </span>
+      )}
+    </Link>
+  </div>
+</header>
 
       {/* MOBIL PASTKI NAV */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800">
