@@ -118,6 +118,7 @@ setSubmitting(true);
     } finally {
       setSubmitting(false);
     }
+  };
 
   // Success — scroll top ishlaydi (ScrollToTop bor App.jsx da)
   if (step === 2 && successOrder) return (
@@ -374,5 +375,4 @@ setSubmitting(true);
       )}
     </div>
   );
-}
 }
