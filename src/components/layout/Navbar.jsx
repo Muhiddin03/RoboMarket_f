@@ -92,6 +92,11 @@ export default function Navbar() {
             </div>
 
             {/* Nav */}
+            <Link to="/profile"
+  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap
+    ${isActive('/profile') ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+  {customer ? '👤 ' + customer.name.split(' ')[0] : 'Kabinet'}
+</Link>
             <nav className="flex items-center gap-0.5 ml-auto">
               {[
                 { to: '/products',   label: 'Mahsulotlar' },
@@ -103,12 +108,7 @@ export default function Navbar() {
                   className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap
                     ${isActive(to) ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
                   {label}
-                </Link>,
-                <Link to="/profile"
-  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap
-    ${isActive('/profile') ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
-  {customer ? '👤 ' + customer.name.split(' ')[0] : 'Kabinet'}
-</Link>
+                </Link>               
                 
               ))}
             </nav>
