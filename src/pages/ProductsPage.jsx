@@ -5,10 +5,10 @@ import { Search, X } from 'lucide-react';
 import { productsApi, categoriesApi } from '../utils/api';
 import ProductGrid from '../components/product/ProductGrid';
 
-// const SORT_OPTIONS = [
-//   { v: 'id_desc', label: 'Yangi kelganlar' },
-//   { v: 'name_asc', label: 'A-Z' },
-// ];
+const SORT_OPTIONS = [
+  { v: 'id_desc', label: 'Yangi kelganlar' },
+  { v: 'name_asc', label: 'A-Z' },
+];
 
 export default function ProductsPage() {
   const [params, setParams]       = useSearchParams();
