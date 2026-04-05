@@ -40,7 +40,7 @@ export default function AdminProducts() {
     setLoading(true);
     try {
       const [pr, cr] = await Promise.all([
-        productsApi.getAll({ search, category: catFilter, limit: 100 }),
+        productsApi.getAll({ search, category: catFilter, limit: 600 }),
         categoriesApi.getAll(),
       ]);
       setProducts(pr.data.products || []);
@@ -85,8 +85,9 @@ export default function AdminProducts() {
       }
       if (editId) {
         const orig = products.find(p => p.id === editId);
-        const rmIds = (orig?.images || []).filter(i => !existingImgs.find(e => e.url === i.url)).map(i => i.filename).filter(Boolean);
-        if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
+        const rmImages = (orig?.images || []).filter(i => !existingImgs.find(e => e.url === i.url));
+const rmIds = rmImages.map(i => i.fileId || i.filename).filter(Boolean);
+if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
         await productsApi.update(editId, fd);
         toast.success('Yangilandi');
       } else {
