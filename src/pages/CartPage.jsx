@@ -82,7 +82,14 @@ export default function CartPage() {
         <p className="text-slate-500 mb-1 text-sm">Zakaz raqami:</p>
         <p className="text-3xl font-black text-violet-400 mb-3">{successOrder.order_number}</p>
         <p className="text-slate-500 text-sm mb-6">Operator tez orada siz bilan bog'lanadi</p>
-        <Link to="/" className="btn-primary w-full justify-center py-3">Bosh sahifaga qaytish</Link>
+       <div className="flex flex-col gap-3">
+  <Link to={`/orders`} className="btn-primary w-full justify-center py-3">
+    Zakazimni kuzatish
+  </Link>
+  <Link to="/" className="btn-outline w-full justify-center py-2.5">
+    Bosh sahifaga qaytish
+  </Link>
+</div>
       </div>
     </div>
   );

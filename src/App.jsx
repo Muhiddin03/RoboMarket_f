@@ -24,6 +24,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 import AdminHeroCards from './pages/admin/AdminHeroCards';
 import AdminBlog from './pages/admin/AdminBlog';
 import AdminReviews from './pages/admin/AdminReviews';
+import OrdersPage from './pages/OrdersPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -67,6 +68,7 @@ export default function App() {
             <Route path="/cart" element={<PublicLayout><CartPage /></PublicLayout>} />
             <Route path="/categories" element={<PublicLayout><CategoriesPage /></PublicLayout>} />
             <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
+            <Route path="/orders" element={<PublicLayout><OrdersPage /></PublicLayout>} />
             <Route path="/blog" element={<PublicLayout><BlogPage /></PublicLayout>} />
             <Route path="/blog/:id" element={<PublicLayout><BlogDetailPage /></PublicLayout>} />
             <Route path="/robomarket-dashboard-2025/login" element={<AdminLogin />} />
