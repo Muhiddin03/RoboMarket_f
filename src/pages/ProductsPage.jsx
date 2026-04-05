@@ -1,29 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import BackButton from '../components/ui/BackButton';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { productsApi, categoriesApi } from '../utils/api';
 import ProductGrid from '../components/product/ProductGrid';
 
 const SORT_OPTIONS = [
   { v: 'id_desc', label: 'Yangi kelganlar' },
-  { v: 'price_asc', label: 'Narx: arzondan' },
-  { v: 'price_desc', label: 'Narx: qimmatdan' },
   { v: 'name_asc', label: 'A-Z' },
 ];
 
 export default function ProductsPage() {
-  const [params, setParams] = useSearchParams();
-  const [products, setProducts] = useState([]);
+  const [params, setParams]       = useSearchParams();
+  const [products, setProducts]   = useState([]);
   const [categories, setCategories] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [total, setTotal]         = useState(0);
+  const [loading, setLoading]     = useState(true);
 
-  const search = params.get('search') || '';
+  const search   = params.get('search')   || '';
   const category = params.get('category') || '';
-  const badge = params.get('badge') || '';
-  const sortRaw = params.get('sort') || 'id_desc';
+  const badge    = params.get('badge')    || '';
+  const sortRaw  = params.get('sort')     || 'id_desc';
   const [sortField, sortDir] = sortRaw.split('_');
 
   const sp = (k, v) => {
@@ -36,13 +33,13 @@ export default function ProductsPage() {
     setLoading(true);
     try {
       const [pr, cr] = await Promise.all([
-        productsApi.getAll({ search, category, badge, sort: sortField, order: sortDir, limit: 600 }),
+        productsApi.getAll({ search, category, badge, sort: sortField, order: sortDir, limit: 500 }),
         categoriesApi.getAll(),
       ]);
-      setProducts(pr.data.products || []);
-      setTotal(pr.data.total || 0);
-      setCategories(cr.data || []);
-    } catch { }
+      setProducts(Array.isArray(pr.data?.products) ? pr.data.products : []);
+      setTotal(pr.data?.total || 0);
+      setCategories(Array.isArray(cr.data) ? cr.data : []);
+    } catch {}
     finally { setLoading(false); }
   }, [search, category, badge, sortField, sortDir]);
 
@@ -51,23 +48,18 @@ export default function ProductsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-4">
       <BackButton />
-      {/* Header */}
+
       <div className="flex items-start justify-between gap-3 mb-5 flex-wrap">
         <div>
           <h1 className="text-2xl font-black text-white font-display">
-            {category ? categories.find(c => c.slug === category)?.name || 'Mahsulotlar' : 'Barcha mahsulotlar'}
+            {category ? (categories.find(c => c.slug === category)?.name || 'Mahsulotlar') : 'Barcha mahsulotlar'}
           </h1>
           <p className="text-slate-600 text-sm mt-0.5">{total} ta mahsulot</p>
         </div>
-        <div className="flex gap-3 items-center flex-wrap">
-          <div className="relative hidden md:block">
-            <select className="select pr-8 text-sm min-w-40 py-2" value={sortRaw} onChange={e => sp('sort', e.target.value)}>
-              {SORT_OPTIONS.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
-            </select>
-          </div>
-          <button onClick={() => setFiltersOpen(!filtersOpen)} className="md:hidden btn-outline text-sm py-2">
-            <SlidersHorizontal size={15} /> Filter
-          </button>
+        <div className="hidden md:flex gap-3 items-center">
+          <select className="select pr-8 text-sm min-w-40 py-2" value={sortRaw} onChange={e => sp('sort', e.target.value)}>
+            {SORT_OPTIONS.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
+          </select>
         </div>
       </div>
 
@@ -108,24 +100,22 @@ export default function ProductsPage() {
         </aside>
 
         <div className="flex-1 min-w-0">
-          {/* Mobile filters */}
-          {filtersOpen && (
-            <div className="md:hidden mb-4 card p-3 space-y-3">
-              <div className="relative">
-                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
-                <input className="input pl-8 text-sm" placeholder="Qidiruv..." value={search} onChange={e => sp('search', e.target.value)} />
-              </div>
-              <select className="select" value={sortRaw} onChange={e => sp('sort', e.target.value)}>
-                {SORT_OPTIONS.map(o => <option key={o.v} value={o.v}>{o.label}</option>)}
-              </select>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={() => sp('category', '')} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${!category ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-500'}`}>Barchasi</button>
-                {categories.map(c => (
-                  <button key={c.id} onClick={() => sp('category', c.slug)} className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${category === c.slug ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-500'}`}>{c.name.split('&')[0].trim()}</button>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Mobil kategoriya — gorizontal scroll */}
+          <div className="md:hidden flex gap-2 overflow-x-auto pb-3 mb-3" style={{scrollbarWidth:'none'}}>
+            <button onClick={() => sp('category', '')}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all
+                ${!category ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
+              Barchasi
+            </button>
+            {categories.map(c => (
+              <button key={c.id} onClick={() => sp('category', c.slug)}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all
+                  ${category === c.slug ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
+                {c.name.split('&')[0].trim()}
+              </button>
+            ))}
+          </div>
+
           <ProductGrid products={products} loading={loading} cols={5} />
         </div>
       </div>
