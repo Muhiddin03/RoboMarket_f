@@ -68,13 +68,12 @@ const [pendingInfo, setPendingInfo] = useState(null);
       const res = await ordersApi.create(payload);
       setSuccessOrder(res.data.order);
       clearCart();
-      clearCart();
-setStep(2);
+      setStep(2);
 if (!customer) {
   setPendingInfo({ name: trimName, phone: trimPhone });
   setShowPin(true);
 }
-      setStep(2);
+      
     } catch (err) {
       console.error('Order error:', err.response?.data);
       toast.error(err.response?.data?.error || 'Xato yuz berdi, qayta urining');
