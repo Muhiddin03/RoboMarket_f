@@ -4,6 +4,8 @@ import { ShoppingCart, Search, Cpu, Package, Grid3X3, BookOpen, Home, MessageCir
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { productsApi } from '../../utils/api';
+import { useCustomer } from '../../context/CustomerContext';
+import { User } from 'lucide-react';
 
 const BOTTOM_NAV = [
   { to: '/',           label: 'Asosiy',     icon: Home },
@@ -11,121 +13,10 @@ const BOTTOM_NAV = [
   { to: '/categories', label: 'Kategoriya', icon: Grid3X3 },
   { to: '/contact',    label: 'Aloqa',      icon: MessageCircle },
   { to: '/blog',       label: 'Yangilik',   icon: BookOpen },
+  { to: '/profile', label: 'Kabinet', icon: User },
 ];
 
-// function SearchBar({ isMobile = false }) {
-//   const [q, setQ]           = useState('');
-//   const [results, setResults] = useState([]);
-//   const [open, setOpen]     = useState(false);
-//   const [busy, setBusy]     = useState(false);
-//   const navigate = useNavigate();
-//   const timer    = useRef(null);
-//   const box      = useRef(null);
 
-//   // Tashqariga bossa yopilsin
-//   useEffect(() => {
-//     const fn = (e) => { if (box.current && !box.current.contains(e.target)) setOpen(false); };
-//     document.addEventListener('mousedown', fn);
-//     return () => document.removeEventListener('mousedown', fn);
-//   }, []);
-
-//   const onChange = (e) => {
-//     const val = e.target.value;
-//     setQ(val);
-//     clearTimeout(timer.current);
-//     if (!val.trim()) { setResults([]); setOpen(false); return; }
-//     setBusy(true);
-//     timer.current = setTimeout(async () => {
-//       try {
-//         const res = await productsApi.getAll({ search: val.trim(), limit: 7 });
-//         const list = res.data?.products || [];
-//         setResults(list);
-//         setOpen(true);
-//       } catch { setResults([]); }
-//       finally { setBusy(false); }
-//     }, 250);
-//   };
-
-//   const onSubmit = (e) => {
-//     e.preventDefault();
-//     if (!q.trim()) return;
-//     navigate(`/products?search=${encodeURIComponent(q.trim())}`);
-//     setQ(''); setOpen(false); setResults([]);
-//   };
-
-//   const pick = (id) => {
-//     navigate(`/products/${id}`);
-//     setQ(''); setOpen(false); setResults([]);
-//   };
-
-//   const clear = () => { setQ(''); setResults([]); setOpen(false); };
-
-//   return (
-//     <div ref={box} className="relative w-full">
-//       <form onSubmit={onSubmit}>
-//         <div className="relative">
-//           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-//           <input
-//             value={q}
-//             onChange={onChange}
-//             onFocus={() => results.length > 0 && setOpen(true)}
-//             placeholder="Mahsulot qidirish..."
-//             className="w-full pl-9 pr-8 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
-//           />
-//           {q && (
-//             <button type="button" onClick={clear}
-//               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
-//               <X size={14} />
-//             </button>
-//           )}
-//         </div>
-//       </form>
-
-//       {/* Dropdown natijalar */}
-//       {open && (
-//         <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#0e0b1a] border border-slate-700/80 rounded-2xl shadow-2xl shadow-black/70 overflow-hidden z-[200]">
-//           {busy ? (
-//             <div className="flex items-center gap-2 px-4 py-3 text-xs text-slate-500">
-//               <span className="w-3 h-3 border border-violet-500 border-t-transparent rounded-full animate-spin" />
-//               Qidirilmoqda...
-//             </div>
-//           ) : results.length === 0 ? (
-//             <div className="px-4 py-3 text-xs text-slate-500">Mahsulot topilmadi</div>
-//           ) : (
-//             <>
-//               {results.map(p => {
-//                 const img = p.images?.[0]?.url;
-//                 return (
-//                   <button key={p.id} onClick={() => pick(p.id)}
-//                     className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-800/80 transition-colors border-b border-slate-800/60 last:border-0 text-left">
-//                     <div className="w-10 h-10 rounded-xl bg-slate-800 overflow-hidden flex-shrink-0 border border-slate-700">
-//                       {img
-//                         ? <img src={img} alt={p.name} className="w-full h-full object-cover" />
-//                         : <Package size={18} className="text-slate-600 m-auto mt-2.5" />}
-//                     </div>
-//                     <div className="flex-1 min-w-0">
-//                       <div className="text-xs font-bold text-slate-100 truncate">{p.name}</div>
-//                       <div className="text-xs text-violet-400 font-bold mt-0.5">
-//                         {Number(p.price).toLocaleString('uz-UZ')} so'm
-//                       </div>
-//                     </div>
-//                     {p.stock === 0 && (
-//                       <span className="text-[10px] text-slate-600 font-bold flex-shrink-0">Tugagan</span>
-//                     )}
-//                   </button>
-//                 );
-//               })}
-//               <button onClick={onSubmit}
-//                 className="w-full text-center text-xs text-violet-400 font-bold py-2.5 hover:bg-slate-800/50 transition-colors">
-//                 Barcha natijalarni ko'rish →
-//               </button>
-//             </>
-//           )}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
 function SearchBar() {
   const [q, setQ] = useState('');
   const navigate  = useNavigate();
@@ -155,6 +46,7 @@ function SearchBar() {
 export default function Navbar() {
   const { totalItems }      = useCart();
   const { isAuthenticated } = useAuth();
+  const { customer } = useCustomer();
   const navigate  = useNavigate();
   const location  = useLocation();
   const tapCount  = useRef(0);
@@ -211,7 +103,13 @@ export default function Navbar() {
                   className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap
                     ${isActive(to) ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
                   {label}
-                </Link>
+                </Link>,
+                <Link to="/profile"
+  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap
+    ${isActive('/profile') ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+  {customer ? '👤 ' + customer.name.split(' ')[0] : 'Kabinet'}
+</Link>
+                
               ))}
             </nav>
 

@@ -6,6 +6,8 @@ import { Trash2, Minus, Plus, CheckCircle, Truck, Store, CreditCard, Banknote, A
 import { useCart } from '../context/CartContext';
 import { ordersApi } from '../utils/api';
 import toast from 'react-hot-toast';
+import { useCustomer } from '../context/CustomerContext';
+import PinSetupModal from '../components/ui/PinSetupModal';
 
 const CITIES = [
   'Toshkent shahri','Toshkent viloyati','Andijon','Buxoro',"Farg'ona",
@@ -15,6 +17,9 @@ const CITIES = [
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart, clearCart, subtotal, deliveryCost, FREE_DELIVERY } = useCart();
+   const { customer, setupProfile } = useCustomer();
+const [showPin, setShowPin] = useState(false);
+const [pendingInfo, setPendingInfo] = useState(null);
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+998 ');
@@ -25,6 +30,7 @@ export default function CartPage() {
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
+ 
 
   const dc = deliveryType === 'pickup' ? 0 : (subtotal >= FREE_DELIVERY ? 0 : deliveryCost);
   const totalAmount = subtotal + dc;
@@ -62,6 +68,12 @@ export default function CartPage() {
       const res = await ordersApi.create(payload);
       setSuccessOrder(res.data.order);
       clearCart();
+      clearCart();
+setStep(2);
+if (!customer) {
+  setPendingInfo({ name: trimName, phone: trimPhone });
+  setShowPin(true);
+}
       setStep(2);
     } catch (err) {
       console.error('Order error:', err.response?.data);
@@ -83,12 +95,14 @@ export default function CartPage() {
         <p className="text-3xl font-black text-violet-400 mb-3">{successOrder.order_number}</p>
         <p className="text-slate-500 text-sm mb-6">Operator tez orada siz bilan bog'lanadi</p>
        <div className="flex flex-col gap-3">
-  <Link to={`/orders`} className="btn-primary w-full justify-center py-3">
+  <div className="flex flex-col gap-3">
+  <Link to="/profile" className="btn-primary w-full justify-center py-3">
     Zakazimni kuzatish
   </Link>
   <Link to="/" className="btn-outline w-full justify-center py-2.5">
     Bosh sahifaga qaytish
   </Link>
+</div>
 </div>
       </div>
     </div>
@@ -105,6 +119,13 @@ export default function CartPage() {
       <Link to="/products" className="btn-primary">Mahsulotlarni ko'rish</Link>
     </div>
   );
+
+ {showPin && pendingInfo && (
+  <PinSetupModal
+    onSetup={pin => { setupProfile(pendingInfo.name, pendingInfo.phone, pin); setShowPin(false); }}
+    onSkip={() => setShowPin(false)}
+  />
+)}
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
