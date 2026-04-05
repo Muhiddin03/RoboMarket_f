@@ -52,7 +52,37 @@ const [pendingInfo, setPendingInfo] = useState(null);
     if (deliveryType === 'delivery' && !city) { toast.error('Viloyatni tanlang'); return; }
     if (deliveryType === 'delivery' && !address.trim()) { toast.error('Manzilni kiriting'); return; }
 
-    setSubmitting(true);
+//     setSubmitting(true);
+//     try {
+//       const payload = {
+//         customer_name: trimName,
+//         customer_phone: trimPhone,
+//         delivery_type: deliveryType,
+//         customer_city: deliveryType === 'delivery' ? city : null,
+//         customer_address: deliveryType === 'delivery' ? address.trim() : null,
+//         payment_method: payment,
+//         note: note.trim() || null,
+//         items: cart.map(i => ({ product_id: i.id, qty: i.qty })),
+//       };
+
+//       const res = await ordersApi.create(payload);
+//       setSuccessOrder(res.data.order);
+//       clearCart();
+//       setStep(2);
+// if (!customer) {
+//   setPendingInfo({ name: trimName, phone: trimPhone });
+//   setShowPin(true);
+// }
+      
+//     } catch (err) {
+//       console.error('Order error:', err.response?.data);
+//       toast.error(err.response?.data?.error || 'Xato yuz berdi, qayta urining');
+//     } finally {
+//       setSubmitting(false);
+//     }
+//   };
+
+setSubmitting(true);
     try {
       const payload = {
         customer_name: trimName,
@@ -66,21 +96,28 @@ const [pendingInfo, setPendingInfo] = useState(null);
       };
 
       const res = await ordersApi.create(payload);
+      
+      // 1. Ma'lumotlarni saqlash va savatchani tozalash
       setSuccessOrder(res.data.order);
       clearCart();
-      setStep(2);
-if (!customer) {
-  setPendingInfo({ name: trimName, phone: trimPhone });
-  setShowPin(true);
-}
-      
+
+      // 2. PIN so'rash yoki keyingi qadamga o'tish mantiqi
+      if (!customer) {
+        setPendingInfo({ name: trimName, phone: trimPhone });
+        setShowPin(true);
+        // Bu yerda setStep(2) bo'lmasligi kerak, 
+        // aks holda modal ochilmay sahifa o'zgarib ketadi
+      } else {
+        // Agar foydalanuvchi tizimda bo'lsa, to'g'ridan-to'g'ri 2-qadamga
+        setStep(2);
+      }
+
     } catch (err) {
       console.error('Order error:', err.response?.data);
       toast.error(err.response?.data?.error || 'Xato yuz berdi, qayta urining');
     } finally {
       setSubmitting(false);
     }
-  };
 
   // Success — scroll top ishlaydi (ScrollToTop bor App.jsx da)
   if (step === 2 && successOrder) return (
@@ -337,4 +374,5 @@ if (!customer) {
       )}
     </div>
   );
+}
 }
