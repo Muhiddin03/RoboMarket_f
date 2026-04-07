@@ -27,12 +27,12 @@ function SearchBar({ isMobile }) {
   return (
     <form onSubmit={onSubmit} className="w-full">
       <div className="relative">
-        <Search size={isMobile ? 12 : 14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+        <Search size={isMobile ? 11 : 14} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
         <input
           value={q}
           onChange={e => setQ(e.target.value)}
-          placeholder={isMobile ? "Qidirish..." : "Mahsulot qidirish..."}
-          className={`w-full pl-8 pr-2 py-1.5 bg-slate-800/40 border border-slate-700/50 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-violet-500 transition-all ${isMobile ? 'text-[11px]' : 'text-sm'}`}
+          placeholder={isMobile ? "Izlash..." : "Mahsulot qidirish..."}
+          className={`w-full pl-7 pr-2 py-1.5 bg-slate-800/40 border border-slate-700/50 rounded-lg text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-violet-500 transition-all ${isMobile ? 'text-[10px]' : 'text-sm'}`}
         />
       </div>
     </form>
@@ -111,32 +111,35 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ── MOBILE TOP HEADER (Hamma elementlar bir qatorda) ── */}
+      {/* ── MOBILE TOP HEADER (Yaxshilangan bir qatorli dizayn) ── */}
       <header className="md:hidden bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <div className="flex items-center h-14 px-3 gap-2">
-          {/* Logo + Text */}
+        <div className="flex items-center h-12 px-2 gap-2 justify-between">
+          
+          {/* Logo va Yozuv bitta qatorda */}
           <button onClick={handleLogoClick} className="flex items-center gap-1 flex-shrink-0 select-none">
-            <div className="w-7 h-7 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Cpu size={14} className="text-white" />
+            <div className="w-6 h-6 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-md flex items-center justify-center">
+              <Cpu size={12} className="text-white" />
             </div>
-            <span className="font-black text-white text-[13px] leading-tight">Robo<br/><span className="text-violet-500">Market</span></span>
+            <span className="font-black text-white text-[12px] whitespace-nowrap">
+              Robo<span className="text-violet-500">Market</span>
+            </span>
           </button>
 
-          {/* Qidiruv (Input qisqartirildi) */}
-          <div className="flex-1 min-w-0 max-w-[140px]">
+          {/* Qidiruv (Input yanada ixcham) */}
+          <div className="flex-1 min-w-0 max-w-[120px]">
             <SearchBar isMobile />
           </div>
 
-          {/* O'ng tarafdagi tugmalar */}
-          <div className="flex items-center gap-1.5 ml-auto">
+          {/* Tugmalar (Kabinet + Savat) */}
+          <div className="flex items-center gap-1 flex-shrink-0">
             <Link to="/profile" className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-all ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
-              <User size={16} />
+              <User size={15} />
             </Link>
 
             <Link to="/cart" className="relative w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 border border-slate-700 text-slate-400">
-              <ShoppingCart size={16} />
+              <ShoppingCart size={15} />
               {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[15px] h-3.5 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-slate-900">
+                <span className="absolute -top-1 -right-1 min-w-[14px] h-3.5 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border border-slate-900">
                   {totalItems > 9 ? '9+' : totalItems}
                 </span>
               )}
@@ -145,30 +148,30 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ── MOBILE BOTTOM NAVIGATION (Interaktiv sakrash effekti bilan) ── */}
+      {/* ── MOBILE BOTTOM NAVIGATION ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-xl border-t border-slate-800/50">
-        <div className="flex items-center justify-around px-1 py-2">
+        <div className="flex items-center justify-around px-1 py-1.5">
           {BOTTOM_NAV.map(({ to, label, icon: Icon }, idx) => {
             const active = isActive(to);
             const isMiddle = idx === 2;
 
             return (
-              <Link key={to} to={to} className="relative flex flex-col items-center min-w-[60px]">
+              <Link key={to} to={to} className="relative flex flex-col items-center min-w-[55px]">
                 {isMiddle ? (
-                  <div className="flex flex-col items-center -mt-9">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 transform 
+                  <div className="flex flex-col items-center -mt-8">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-xl transition-all duration-300 transform 
                       ${active ? 'bg-white text-violet-600 -translate-y-2 scale-110 shadow-violet-500/50' : 'bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-violet-900/60'}`}>
-                      <Icon size={26} strokeWidth={2.5} />
+                      <Icon size={24} strokeWidth={2.5} />
                     </div>
-                    <span className={`text-[10px] font-bold mt-1 transition-colors ${active ? 'text-white' : 'text-slate-500'}`}>{label}</span>
+                    <span className={`text-[9px] font-bold mt-1 transition-colors ${active ? 'text-white' : 'text-slate-500'}`}>{label}</span>
                   </div>
                 ) : (
-                  <div className={`flex flex-col items-center transition-all duration-300 ${active ? '-translate-y-1.5' : 'translate-y-0'}`}>
+                  <div className={`flex flex-col items-center transition-all duration-300 ${active ? '-translate-y-1' : 'translate-y-0'}`}>
                     <div className={`p-1 transition-colors duration-300 ${active ? 'text-violet-400' : 'text-slate-500'}`}>
-                      <Icon size={20} strokeWidth={active ? 2.5 : 2} className={active ? 'animate-pulse' : ''} />
+                      <Icon size={19} strokeWidth={active ? 2.5 : 2} />
                     </div>
-                    <span className={`text-[10px] font-bold transition-colors ${active ? 'text-violet-400' : 'text-slate-500'}`}>{label}</span>
-                    {active && <div className="w-1 h-1 bg-violet-400 rounded-full mt-0.5 shadow-[0_0_5px_#a78bfa]" />}
+                    <span className={`text-[9px] font-bold transition-colors ${active ? 'text-violet-400' : 'text-slate-500'}`}>{label}</span>
+                    {active && <div className="w-1 h-1 bg-violet-400 rounded-full mt-0.5" />}
                   </div>
                 )}
               </Link>
@@ -177,7 +180,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      <div className="md:hidden h-20" />
+      <div className="md:hidden h-16" />
     </>
   );
 }
