@@ -127,16 +127,16 @@ export default function Navbar() {
 
           {/* O'ng tarafdagi blok: Qidiruv + Kabinet + Savat */}
           <div className="flex items-center gap-1.5 ml-auto flex-shrink-1">
-            <div className="w-[85px] xs:w-[150px]">
+            <div className="w-[85px] xs:w-[180px]">
               <SearchBar isMobile />
             </div>
 
             <Link to="/profile" className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
-              <User size={18} />
+              <User size={16} />
             </Link>
 
             <Link to="/cart" className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-slate-400">
-              <ShoppingCart size={18} />
+              <ShoppingCart size={16} />
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border border-slate-900">
                   {totalItems > 9 ? '9+' : totalItems}
