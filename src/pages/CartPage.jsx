@@ -68,11 +68,13 @@ const [pendingInfo, setPendingInfo] = useState(null);
       const res = await ordersApi.create(payload);
       setSuccessOrder(res.data.order);
       clearCart();
-      setStep(2);
-if (!customer) {
-  setPendingInfo({ name: trimName, phone: trimPhone });
-  setShowPin(true);
-}
+      // Avval PIN modalini ko'rsat, keyin step o'zgarsin
+      if (!customer) {
+        setPendingInfo({ name: trimName, phone: trimPhone });
+        setShowPin(true);
+      } else {
+        setStep(2);
+      }
       
     } catch (err) {
       console.error('Order error:', err.response?.data);
@@ -83,7 +85,19 @@ if (!customer) {
   };
 
   // Success — scroll top ishlaydi (ScrollToTop bor App.jsx da)
-  if (step === 2 && successOrder) return (
+  
+    if (step === 2 && successOrder) return (
+    <>
+      {showPin && pendingInfo && (
+        <PinSetupModal
+          onSetup={pin => {
+            setupProfile(pendingInfo.name, pendingInfo.phone, pin);
+            setShowPin(false);
+          }}
+          onSkip={() => setShowPin(false)}
+        />
+      )}
+      
     <div className="max-w-md mx-auto px-4 py-16 text-center">
       <div className="card p-8">
         <div className="w-20 h-20 bg-violet-900/40 border-2 border-violet-700 rounded-full flex items-center justify-center mx-auto mb-5">
@@ -122,13 +136,7 @@ if (!customer) {
 
 
   return (
-    <>
-     {showPin && pendingInfo && (
-  <PinSetupModal
-    onSetup={pin => { setupProfile(pendingInfo.name, pendingInfo.phone, pin); setShowPin(false); }}
-    onSkip={() => setShowPin(false)}
-  />
-)}
+ 
     <div className="max-w-7xl mx-auto px-4 py-6">
       <BackButton />
       {/* Header */}
