@@ -24,7 +24,6 @@ export default function Navbar() {
   const tapCount = useRef(0);
   const tapTimer = useRef(null);
 
-  // Search ochilganda fokus berish
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -60,40 +59,60 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── DESKTOP HEADER ── */}
+      {/* ── DESKTOP HEADER (MUKAMMAL VARIANT) ── */}
       <header className="hidden md:block bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <button onClick={handleLogoClick} className="flex items-center gap-2 group">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center">
+          
+          {/* Logo */}
+          <button onClick={handleLogoClick} className="flex items-center gap-2 group mr-8">
             <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
               <Cpu size={20} className="text-white" />
             </div>
             <span className="font-black text-white text-xl tracking-tight">Robo<span className="text-violet-500">Market</span></span>
           </button>
 
-          <div className="flex items-center gap-6">
-            <form onSubmit={handleSearchSubmit} className="w-64 relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          {/* Qidiruv (Desktopda ixchamroq) */}
+          <div className="flex-1 max-w-md">
+            <form onSubmit={handleSearchSubmit} className="relative group">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-violet-500 transition-colors" />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Qidirish..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500 transition-all"
+                className="w-full h-10 pl-10 pr-4 bg-slate-800/60 border border-slate-700/50 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500 transition-all"
               />
             </form>
-            <nav className="flex items-center gap-1">
-              {BOTTOM_NAV.map(({ to, label }) => (
-                <Link key={to} to={to} className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${isActive(to) ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white'}`}>{label}</Link>
-              ))}
-            </nav>
+          </div>
+
+          {/* Navigatsiya Menyusi */}
+          <nav className="flex items-center gap-1 mx-6">
+            {BOTTOM_NAV.filter((_, i) => i !== 2).map(({ to, label }) => ( // Kategoriya mobilda markazda, desktopda oddiy ro'yxatda bo'lishi mumkin yoki olib tashlanadi
+              <Link key={to} to={to} className={`px-3 py-2 rounded-lg text-[13px] font-bold transition-all ${isActive(to) ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}>{label}</Link>
+            ))}
+            <Link to="/categories" className={`px-3 py-2 rounded-lg text-[13px] font-bold transition-all ${isActive('/categories') ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}>Kategoriya</Link>
+          </nav>
+
+          {/* O'ng tarafdagi Tugmalar */}
+          <div className="flex items-center gap-2 border-l border-slate-800 pl-6 ml-auto">
+            <Link to="/profile" className={`flex items-center gap-2 px-3 h-10 rounded-xl border transition-all ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800/60 border-slate-700/50 text-slate-400 hover:text-white'}`}>
+              <User size={18} />
+              <span className="text-xs font-bold">Kabinet</span>
+            </Link>
+            <Link to="/cart" className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-400 hover:text-violet-400 transition-all">
+              <ShoppingCart size={18} />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-violet-600 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-slate-900">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* ── MOBILE TOP HEADER ── */}
+      {/* ── MOBILE TOP HEADER (O'SHA SIZGA YOQQAN VARIANT) ── */}
       <header className="md:hidden bg-slate-900 border-b border-slate-800 sticky top-0 z-50 h-16 overflow-hidden">
         <div className="relative w-full h-full flex items-center px-4">
-          
-          {/* Standart ko'rinish (Logo va tugmalar) */}
           <div className={`flex items-center w-full transition-all duration-300 ${isSearchOpen ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}>
             <button onClick={handleLogoClick} className="flex items-center gap-2">
               <div className="w-9 h-9 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
@@ -101,20 +120,9 @@ export default function Navbar() {
               </div>
               <span className="font-black text-white text-lg tracking-tighter">Robo<span className="text-violet-500">Market</span></span>
             </button>
-
             <div className="flex items-center gap-2 ml-auto">
-              {/* Qidiruvni ochish tugmasi */}
-              <button 
-                onClick={() => setIsSearchOpen(true)}
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-400"
-              >
-                <Search size={20} />
-              </button>
-
-              <Link to="/profile" className={`w-10 h-10 flex items-center justify-center rounded-xl border ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800/60 border-slate-700/50 text-slate-400'}`}>
-                <User size={20} />
-              </Link>
-
+              <button onClick={() => setIsSearchOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-400"><Search size={20} /></button>
+              <Link to="/profile" className={`w-10 h-10 flex items-center justify-center rounded-xl border ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800/60 border-slate-700/50 text-slate-400'}`}><User size={20} /></Link>
               <Link to="/cart" className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-400">
                 <ShoppingCart size={20} />
                 {totalItems > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border border-slate-900">{totalItems}</span>}
@@ -122,7 +130,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Kengaygan Qidiruv Paneli (Full Width) */}
           <div className={`absolute inset-0 px-4 bg-slate-900 flex items-center transition-all duration-300 ${isSearchOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
             <form onSubmit={handleSearchSubmit} className="flex items-center w-full gap-2">
               <div className="relative flex-1">
@@ -132,16 +139,10 @@ export default function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Mahsulot nomini yozing..."
-                  className="w-full h-11 pl-10 pr-4 bg-slate-800 border border-violet-500/50 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                  className="w-full h-11 pl-10 pr-4 bg-slate-800 border border-violet-500/50 rounded-xl text-white text-sm focus:outline-none"
                 />
               </div>
-              <button 
-                type="button" 
-                onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }}
-                className="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-800 text-slate-400"
-              >
-                <X size={20} />
-              </button>
+              <button type="button" onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }} className="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-800 text-slate-400"><X size={20} /></button>
             </form>
           </div>
         </div>
@@ -152,16 +153,12 @@ export default function Navbar() {
         <div className="flex items-center justify-around px-2 py-2">
           {BOTTOM_NAV.map(({ to, label, icon: Icon }, idx) => {
             const active = isActive(to);
-            const isMiddle = idx === 2; // Kategoriya bo'limi
-
+            const isMiddle = idx === 2;
             return (
               <Link key={to} to={to} className="relative flex flex-col items-center min-w-[60px]">
                 {isMiddle ? (
                   <div className="flex flex-col items-center -mt-10">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 transform 
-                      ${active 
-                        ? 'bg-white text-violet-600 rotate-[360deg] scale-110 shadow-violet-500/50 ring-4 ring-violet-500/20' 
-                        : 'bg-gradient-to-tr from-violet-600 to-indigo-600 text-white hover:scale-105'}`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 transform ${active ? 'bg-white text-violet-600 rotate-[360deg] scale-110 ring-4 ring-violet-500/20' : 'bg-gradient-to-tr from-violet-600 to-indigo-600 text-white'}`}>
                       <Icon size={28} strokeWidth={2.5} className={active ? 'animate-bounce' : ''} />
                     </div>
                     <span className={`text-[10px] font-bold mt-1.5 transition-colors ${active ? 'text-white' : 'text-slate-500'}`}>{label}</span>
