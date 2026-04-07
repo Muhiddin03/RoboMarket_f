@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { maskPhone, isValidPhone, handlePhoneChange } from '../utils/phone';
 import BackButton from '../components/ui/BackButton';
 import { Link } from 'react-router-dom';
-import { Trash2, Minus, Plus, CheckCircle, Truck, Store, CreditCard, Banknote, ArrowLeft, ShoppingCart } from 'lucide-react';
+import { 
+  Trash2, Minus, Plus, CheckCircle, Truck, Store, 
+  CreditCard, Banknote, ArrowLeft, ShoppingCart, Package 
+} from 'lucide-react'; // Package qo'shildi
 import { useCart } from '../context/CartContext';
 import { ordersApi } from '../utils/api';
 import toast from 'react-hot-toast';
@@ -17,12 +20,16 @@ const CITIES = [
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart, clearCart, subtotal, deliveryCost, FREE_DELIVERY } = useCart();
-   const { customer, setupProfile } = useCustomer();
-const [showPin, setShowPin] = useState(false);
-const [pendingInfo, setPendingInfo] = useState(null);
+  const { customer, setupProfile } = useCustomer();
+  
+  const [showPin, setShowPin] = useState(false);
+  const [pendingInfo, setPendingInfo] = useState(null);
   const [step, setStep] = useState(0);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('+998 ');
+  
+  // Avtomatik to'ldirish: Agar customer bo'lsa ma'lumotlarni qo'yish
+  const [name, setName] = useState(customer?.name || '');
+  const [phone, setPhone] = useState(customer?.phone || '+998 ');
+  
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
@@ -30,7 +37,6 @@ const [pendingInfo, setPendingInfo] = useState(null);
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [successOrder, setSuccessOrder] = useState(null);
- 
 
   const dc = deliveryType === 'pickup' ? 0 : (subtotal >= FREE_DELIVERY ? 0 : deliveryCost);
   const totalAmount = subtotal + dc;
@@ -68,13 +74,12 @@ const [pendingInfo, setPendingInfo] = useState(null);
       const res = await ordersApi.create(payload);
       setSuccessOrder(res.data.order);
       clearCart();
-      // Avval PIN modalini ko'rsat, keyin step o'zgarsin
+      
       if (!customer) {
         setPendingInfo({ name: trimName, phone: trimPhone });
         setShowPin(true);
-      } else {
-        setStep(2);
       }
+      setStep(2); // Buyurtma muvaffaqiyatli bo'lsa har doim step 2 ga o'tadi
       
     } catch (err) {
       console.error('Order error:', err.response?.data);
@@ -84,11 +89,10 @@ const [pendingInfo, setPendingInfo] = useState(null);
     }
   };
 
-  // Success — scroll top ishlaydi (ScrollToTop bor App.jsx da)
-  
-    if (step === 2 && successOrder) return (
-    <>
-      {showPin && pendingInfo && (
+  // STEP 2 — Success Screen
+  if (step === 2 && successOrder) return (
+    <div className="max-w-md mx-auto px-4 py-16 text-center">
+      {showPin && (
         <PinSetupModal
           onSetup={pin => {
             setupProfile(pendingInfo.name, pendingInfo.phone, pin);
@@ -98,7 +102,6 @@ const [pendingInfo, setPendingInfo] = useState(null);
         />
       )}
       
-    <div className="max-w-md mx-auto px-4 py-16 text-center">
       <div className="card p-8">
         <div className="w-20 h-20 bg-violet-900/40 border-2 border-violet-700 rounded-full flex items-center justify-center mx-auto mb-5">
           <CheckCircle size={40} className="text-violet-400" />
@@ -107,20 +110,20 @@ const [pendingInfo, setPendingInfo] = useState(null);
         <p className="text-slate-500 mb-1 text-sm">Zakaz raqami:</p>
         <p className="text-3xl font-black text-violet-400 mb-3">{successOrder.order_number}</p>
         <p className="text-slate-500 text-sm mb-6">Operator tez orada siz bilan bog'lanadi</p>
-       <div className="flex flex-col gap-3">
-  <div className="flex flex-col gap-3">
-  <Link to="/profile" className="btn-primary w-full justify-center py-3">
-    Zakazimni kuzatish
-  </Link>
-  <Link to="/" className="btn-outline w-full justify-center py-2.5">
-    Bosh sahifaga qaytish
-  </Link>
-</div>
-</div>
+        
+        <div className="flex flex-col gap-3">
+          <Link to="/profile" className="btn-primary w-full justify-center py-3">
+            Zakazimni kuzatish
+          </Link>
+          <Link to="/" className="btn-outline w-full justify-center py-2.5">
+            Bosh sahifaga qaytish
+          </Link>
+        </div>
       </div>
     </div>
   );
 
+  // EMPTY CART
   if (cart.length === 0 && step !== 2) return (
     <div className="max-w-md mx-auto px-4 py-16 text-center">
       <div className="text-left"><BackButton /></div>
@@ -133,12 +136,10 @@ const [pendingInfo, setPendingInfo] = useState(null);
     </div>
   );
 
-
-
   return (
- 
     <div className="max-w-7xl mx-auto px-4 py-6">
       <BackButton />
+      
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         {step === 1 && (
@@ -189,7 +190,6 @@ const [pendingInfo, setPendingInfo] = useState(null);
             ))}
           </div>
 
-          {/* Summary */}
           <div className="card p-5 h-fit lg:sticky lg:top-20">
             <h3 className="font-black text-white mb-4 font-display">Xulosa</h3>
             <div className="space-y-2 text-sm">
@@ -210,15 +210,12 @@ const [pendingInfo, setPendingInfo] = useState(null);
             </button>
           </div>
         </div>
-        
       )}
 
       {/* STEP 1 — Order form */}
       {step === 1 && (
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-4">
-
-            {/* Contact */}
             <div className="card p-5">
               <h3 className="font-black text-white mb-4 font-display flex items-center gap-2">
                 Shaxsiy ma'lumotlar
@@ -233,13 +230,12 @@ const [pendingInfo, setPendingInfo] = useState(null);
                   <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Telefon *</label>
                   <input className="input" placeholder="+998 90 123 45 67"
                     value={phone}
-                    onChange={e => handlePhoneChange(e, setPhone)}maxLength={17}
+                    onChange={e => handlePhoneChange(e, setPhone)} maxLength={17}
                     type="tel" autoComplete="tel" />
                 </div>
               </div>
             </div>
 
-            {/* Delivery */}
             <div className="card p-5">
               <h3 className="font-black text-white mb-4 font-display">Yetkazib berish</h3>
               <div className="grid grid-cols-2 gap-3 mb-4">
@@ -278,7 +274,6 @@ const [pendingInfo, setPendingInfo] = useState(null);
               )}
             </div>
 
-            {/* Payment */}
             <div className="card p-5">
               <h3 className="font-black text-white mb-4 font-display">To'lov usuli</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -298,7 +293,6 @@ const [pendingInfo, setPendingInfo] = useState(null);
               </div>
             </div>
 
-            {/* Note */}
             <div className="card p-5">
               <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Izoh (ixtiyoriy)</label>
               <textarea className="input resize-none" rows={2}
@@ -307,7 +301,6 @@ const [pendingInfo, setPendingInfo] = useState(null);
             </div>
           </div>
 
-          {/* Summary sidebar */}
           <div className="card p-5 h-fit lg:sticky lg:top-20">
             <h3 className="font-black text-white mb-4 font-display">Buyurtma</h3>
             <div className="space-y-2 text-sm mb-4 max-h-48 overflow-y-auto">
@@ -347,6 +340,5 @@ const [pendingInfo, setPendingInfo] = useState(null);
         </form>
       )}
     </div>
-    </>
   );
 }
