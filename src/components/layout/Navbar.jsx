@@ -127,7 +127,7 @@ export default function Navbar() {
 
           {/* O'ng tarafdagi blok: Qidiruv + Kabinet + Savat */}
           <div className="flex items-center gap-1.5 ml-auto flex-shrink-1">
-            <div className="w-[85px] xs:w-[110px]">
+            <div className="w-[85px] xs:w-[150px]">
               <SearchBar isMobile />
             </div>
 
