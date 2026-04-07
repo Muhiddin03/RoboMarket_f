@@ -1,25 +1,21 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, Search, Cpu, Package, Grid3X3, BookOpen, Home, MessageCircle, X } from 'lucide-react';
+import { ShoppingCart, Search, Cpu, Package, Grid3X3, BookOpen, Home, MessageCircle, User } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { productsApi } from '../../utils/api';
 import { useCustomer } from '../../context/CustomerContext';
-import { User } from 'lucide-react';
 
 const BOTTOM_NAV = [
   { to: '/',           label: 'Asosiy',     icon: Home },
   { to: '/products',   label: 'Mahsulot',   icon: Package },
-  { to: '/categories', label: 'Kategoriya', icon: Grid3X3 },
-  { to: '/contact',    label: 'Aloqa',      icon: MessageCircle },
+  { to: '/categories', label: 'Kategoriya', icon: Grid3X3 }, // O'rtadagi asosiy tugma
   { to: '/blog',       label: 'Yangilik',   icon: BookOpen },
-  { to: '/profile', label: 'Kabinet', icon: User },
+  { to: '/contact',    label: 'Aloqa',      icon: MessageCircle },
 ];
 
-
-function SearchBar() {
+function SearchBar({ isMobile }) {
   const [q, setQ] = useState('');
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -31,12 +27,12 @@ function SearchBar() {
   return (
     <form onSubmit={onSubmit} className="w-full">
       <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+        <Search size={isMobile ? 12 : 14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
         <input
           value={q}
           onChange={e => setQ(e.target.value)}
-          placeholder="Mahsulot qidirish..."
-          className="w-full pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
+          placeholder={isMobile ? "Qidirish..." : "Mahsulot qidirish..."}
+          className={`w-full pl-8 pr-3 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-violet-500 transition-all ${isMobile ? 'text-xs' : 'text-sm'}`}
         />
       </div>
     </form>
@@ -44,13 +40,12 @@ function SearchBar() {
 }
 
 export default function Navbar() {
-  const { totalItems }      = useCart();
-  const { isAuthenticated } = useAuth();
+  const { totalItems } = useCart();
   const { customer } = useCustomer();
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const tapCount  = useRef(0);
-  const tapTimer  = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const tapCount = useRef(0);
+  const tapTimer = useRef(null);
 
   const handleLogoClick = useCallback(() => {
     tapCount.current += 1;
@@ -73,31 +68,22 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── DESKTOP ── */}
+      {/* ── DESKTOP HEADER ── */}
       <header className="hidden md:block bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center h-14 gap-4">
-
-            {/* Logo */}
+          <div className="flex items-center h-16 gap-4">
             <button onClick={handleLogoClick} className="flex items-center gap-2 flex-shrink-0 group select-none">
-              <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-900/50 group-hover:opacity-90 transition-opacity">
-                <Cpu size={16} className="text-white" />
+              <div className="w-9 h-9 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-900/50 group-hover:scale-105 transition-transform">
+                <Cpu size={18} className="text-white" />
               </div>
-              <span className="font-black text-white text-base">Robo<span className="text-gradient">Market</span></span>
+              <span className="font-black text-white text-lg">Robo<span className="text-violet-500">Market</span></span>
             </button>
 
-            {/* Search — desktop da keng */}
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md mx-4">
               <SearchBar />
             </div>
 
-            {/* Nav */}
-            <Link to="/profile"
-  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap
-    ${isActive('/profile') ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
-  {customer ? '👤 ' + customer.name.split(' ')[0] : 'Kabinet'}
-</Link>
-            <nav className="flex items-center gap-0.5 ml-auto">
+            <nav className="flex items-center gap-1 ml-auto">
               {[
                 { to: '/products',   label: 'Mahsulotlar' },
                 { to: '/categories', label: 'Kategoriyalar' },
@@ -105,21 +91,63 @@ export default function Navbar() {
                 { to: '/contact',    label: 'Aloqa' },
               ].map(({ to, label }) => (
                 <Link key={to} to={to}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all
                     ${isActive(to) ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
                   {label}
-                </Link>               
-                
+                </Link>
               ))}
             </nav>
 
-            {/* Savat */}
+            <div className="flex items-center gap-2 border-l border-slate-800 pl-4 ml-2">
+              <Link to="/profile"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all
+                  ${isActive('/profile') ? 'bg-violet-900/40 text-violet-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+                <User size={18} />
+                <span className="max-w-[80px] truncate">{customer ? customer.name.split(' ')[0] : 'Kabinet'}</span>
+              </Link>
+
+              <Link to="/cart"
+                className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 hover:border-violet-600 hover:bg-violet-900/20 transition-all text-slate-300">
+                <ShoppingCart size={18} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-violet-600 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1">
+                    {totalItems > 9 ? '9+' : totalItems}
+                  </span>
+                )}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ── MOBILE TOP HEADER ── */}
+      <header className="md:hidden bg-slate-900/90 backdrop-blur-lg border-b border-slate-800/50 sticky top-0 z-50">
+        <div className="flex items-center h-14 px-3 gap-2">
+          {/* Logo ixchamroq */}
+          <button onClick={handleLogoClick} className="flex-shrink-0 select-none">
+            <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-900/40">
+              <Cpu size={16} className="text-white" />
+            </div>
+          </button>
+
+          {/* Search o'rtada va ixcham */}
+          <div className="flex-1 min-w-0">
+            <SearchBar isMobile />
+          </div>
+
+          {/* O'ng tarafdagi harakatlar: Kabinet + Savat */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <Link to="/profile"
+              className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all
+                ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
+              <User size={18} />
+            </Link>
+
             <Link to="/cart"
-              className="relative flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-violet-600 hover:bg-violet-900/20 transition-all text-slate-300 hover:text-violet-400 text-sm font-semibold flex-shrink-0">
-              <ShoppingCart size={16} />
-              Savat
+              className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-slate-400">
+              <ShoppingCart size={18} />
               {totalItems > 0 && (
-                <span className="min-w-[20px] h-5 bg-violet-600 text-white text-[10px] font-black rounded-full flex items-center justify-center px-1">
+                <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1 border-2 border-slate-900">
                   {totalItems > 9 ? '9+' : totalItems}
                 </span>
               )}
@@ -128,62 +156,52 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* ── MOBIL TOP ── */}
-      <header className="md:hidden bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <div className="flex items-center h-12 px-3 gap-2">
-
-          {/* Logo */}
-          <button onClick={handleLogoClick} className="flex items-center gap-1.5 flex-shrink-0 select-none">
-            <div className="w-7 h-7 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Cpu size={14} className="text-white" />
-            </div>
-            <span className="font-black text-white text-sm">Robo<span className="text-gradient">Market</span></span>
-          </button>
-
-          {/* Search — mobilida ham keng */}
-          <div className="flex-1">
-            <SearchBar isMobile />
-          </div>
-
-          {/* Savat icon */}
-          <Link to="/cart"
-            className="relative flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-slate-400">
-            <ShoppingCart size={17} />
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-violet-600 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1">
-                {totalItems > 9 ? '9+' : totalItems}
-              </span>
-            )}
-          </Link>
-        </div>
-      </header>
-
-      {/* ── MOBIL PASTKI NAV ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800">
-        <div className="flex items-end justify-around px-2 pt-2 pb-3">
+      {/* ── MOBILE BOTTOM NAVIGATION ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 pb-safe">
+        {/* Effekt uchun orqa fon */}
+        <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-xl border-t border-slate-800/50 -z-10" />
+        
+        <div className="flex items-center justify-around px-2 py-2">
           {BOTTOM_NAV.map(({ to, label, icon: Icon }, idx) => {
-            const active  = isActive(to);
-            const isMiddle = idx === 2;
-            return isMiddle ? (
-              <Link key={to} to={to} className="flex flex-col items-center gap-0.5 -mt-5">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all
-                  ${active ? 'bg-violet-500' : 'bg-gradient-to-br from-violet-600 to-indigo-600'} shadow-violet-900/60`}>
-                  <Icon size={24} className="text-white" strokeWidth={2} />
-                </div>
-                <span className={`text-[10px] font-bold mt-0.5 ${active ? 'text-violet-400' : 'text-slate-500'}`}>{label}</span>
-              </Link>
-            ) : (
-              <Link key={to} to={to}
-                className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all
-                  ${active ? 'text-violet-400' : 'text-slate-500'}`}>
-                <Icon size={21} strokeWidth={active ? 2.5 : 1.8} />
-                <span className="text-[10px] font-bold">{label}</span>
+            const active = isActive(to);
+            const isMiddle = idx === 2; // Kategoriya tugmasi
+
+            return (
+              <Link key={to} to={to} className="relative flex flex-col items-center min-w-[64px] transition-all duration-300">
+                {isMiddle ? (
+                  /* Floating Center Button */
+                  <div className="flex flex-col items-center -mt-8">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 
+                      ${active 
+                        ? 'bg-white text-violet-600 rotate-[360deg] scale-110' 
+                        : 'bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-violet-900/40'}`}>
+                      <Icon size={26} strokeWidth={2.5} />
+                    </div>
+                    <span className={`text-[10px] font-bold mt-1.5 transition-colors ${active ? 'text-white' : 'text-slate-500'}`}>
+                      {label}
+                    </span>
+                  </div>
+                ) : (
+                  /* Standard Nav Items */
+                  <div className={`flex flex-col items-center py-1 transition-all ${active ? 'scale-110' : 'scale-100'}`}>
+                    <div className={`relative p-1 transition-colors ${active ? 'text-violet-400' : 'text-slate-500'}`}>
+                      <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+                      {active && (
+                        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-violet-400 rounded-full shadow-[0_0_8px_rgba(167,139,250,0.8)]" />
+                      )}
+                    </div>
+                    <span className={`text-[10px] font-bold mt-0.5 transition-colors ${active ? 'text-violet-400' : 'text-slate-500'}`}>
+                      {label}
+                    </span>
+                  </div>
+                )}
               </Link>
             );
           })}
         </div>
       </nav>
 
+      {/* Pastki nav ostida bo'shliq qolmasligi uchun */}
       <div className="md:hidden h-20" />
     </>
   );
