@@ -110,19 +110,19 @@ export default function Navbar() {
           </button>
 
           {/* O'ng tarafdagi bir xil o'lchamdagi elementlar */}
-          <div className="flex items-center gap-1.5 ml-2">
+          <div className="flex items-center gap-1.2 ml-2">
             {/* Search (Balandligi h-10) */}
-            <div className="w-[100px] xs:w-[130px]">
+            <div className="w-[100px] xs:w-[150px]">
               <SearchBar isMobile />
             </div>
 
             {/* Kabinet (Balandligi h-10) */}
-            <Link to="/profile" className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all flex-shrink-0 ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800/60 border-slate-700/50 text-slate-400'}`}>
+            <Link to="/profile" className={`w-10 h-9 flex items-center justify-center rounded-xl border transition-all flex-shrink-0 ${isActive('/profile') ? 'bg-violet-900/40 border-violet-500/50 text-violet-400' : 'bg-slate-800/60 border-slate-700/50 text-slate-400'}`}>
               <User size={18} />
             </Link>
 
             {/* Savat (Balandligi h-10) */}
-            <Link to="/cart" className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-400 flex-shrink-0">
+            <Link to="/cart" className="relative w-10 h-9 flex items-center justify-center rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-400 flex-shrink-0">
               <ShoppingCart size={18} />
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border border-slate-900 px-0.5">
