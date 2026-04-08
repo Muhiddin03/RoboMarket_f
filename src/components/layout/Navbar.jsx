@@ -178,7 +178,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      <div className="md:hidden h-10" />
+      <div className="md:hidden h-2" />
     </>
   );
 }
