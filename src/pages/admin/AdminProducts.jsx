@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Plus, Search, Pencil, Trash2, X, Upload, Link2, TrendingUp, Package, AlertTriangle } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Plus, Search, Pencil, Trash2, X, Upload, Link2, Package, AlertTriangle, ChevronDown } from 'lucide-react';
 import { productsApi, categoriesApi } from '../../utils/api';
 import toast from 'react-hot-toast';
 
@@ -8,60 +8,148 @@ const BL = { '': "Yo'q", new: 'Yangi', hot: 'Ommabop', sale: 'Chegirma', popular
 const empty = { name: '', description: '', price: '', old_price: '', cost_price: '', stock: '', category_id: '', badge: '', specs: [{ key: '', val: '' }], image_urls: '' };
 const fmt = (n) => Number(n || 0).toLocaleString('uz-UZ');
 
-// Chegirma foizi: eski narxdan sotish narxiga
 const discountPercent = (price, old_price) => {
   if (!old_price || !price || old_price <= price) return null;
   return Math.round(((old_price - price) / old_price) * 100);
 };
-
-// Foyda: sotish narxi - sotib olish narxi
 const profitCalc = (price, cost_price) => {
   if (!price || !cost_price) return null;
   return Number(price) - Number(cost_price);
 };
 
-export default function AdminProducts() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [catFilter, setCatFilter] = useState('');
-  const [modal, setModal] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState(empty);
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
-  const [existingImgs, setExistingImgs] = useState([]);
+function CategoryPicker({ product, categories, onSave }) {
+  const [open, setOpen]     = useState(false);
   const [saving, setSaving] = useState(false);
-  const fileRef = useRef();
+  const ref = useRef();
 
-  const load = async () => {
+  useEffect(() => {
+    const fn = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
+
+  const pick = async (cat) => {
+    setOpen(false);
+    if (cat.id === product.category_id) return;
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.append('name',        product.name);
+      fd.append('price',       product.price);
+      fd.append('stock',       product.stock);
+      fd.append('category_id', cat.id || '');
+      if (product.description) fd.append('description', product.description);
+      if (product.old_price)   fd.append('old_price',   product.old_price);
+      if (product.cost_price)  fd.append('cost_price',  product.cost_price);
+      if (product.badge)       fd.append('badge',       product.badge);
+      fd.append('specs', JSON.stringify(product.specs || []));
+      if (product.images?.length) {
+        product.images.map(i => i.url).filter(Boolean).forEach(u => fd.append('image_urls', u));
+      }
+      await productsApi.update(product.id, fd);
+      toast.success(`Kategoriya: ${cat.name}`);
+      onSave();
+    } catch { toast.error('Xato'); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div ref={ref} className="relative">
+      <button onClick={() => setOpen(o => !o)} disabled={saving}
+        className="flex items-center gap-1 text-xs text-slate-400 hover:text-violet-400 transition-colors group">
+        {saving
+          ? <span className="w-3 h-3 border border-violet-500 border-t-transparent rounded-full animate-spin" />
+          : <span className="group-hover:underline">{product.category_name || '—'}</span>
+        }
+        {!saving && <ChevronDown size={11} className="text-slate-600 group-hover:text-violet-400" />}
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 min-w-44 overflow-hidden">
+          <div className="py-1 max-h-64 overflow-y-auto">
+            <button onClick={() => pick({ id: null, name: 'Kategoriyasiz' })}
+              className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-800 transition-colors
+                ${!product.category_id ? 'text-violet-400 font-bold' : 'text-slate-400'}`}>
+              — Kategoriyasiz
+            </button>
+            {categories.map(c => (
+              <button key={c.id} onClick={() => pick(c)}
+                className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-800 transition-colors
+                  ${product.category_id === c.id ? 'text-violet-400 font-bold bg-violet-900/20' : 'text-slate-300'}`}>
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function AdminProducts() {
+  const [products, setProducts]         = useState([]);
+  const [categories, setCategories]     = useState([]);
+  const [total, setTotal]               = useState(0);
+  const [loading, setLoading]           = useState(true);
+  const [search, setSearch]             = useState('');
+  const [catFilter, setCatFilter]       = useState('');
+  const [modal, setModal]               = useState(false);
+  const [editId, setEditId]             = useState(null);
+  const [form, setForm]                 = useState(empty);
+  const [files, setFiles]               = useState([]);
+  const [previews, setPreviews]         = useState([]);
+  const [existingImgs, setExistingImgs] = useState([]);
+  const [saving, setSaving]             = useState(false);
+  const fileRef   = useRef();
+  const scrollRef = useRef(0);
+
+  const load = useCallback(async (keepScroll = false) => {
+    if (keepScroll) scrollRef.current = window.scrollY;
     setLoading(true);
     try {
       const [pr, cr] = await Promise.all([
-        productsApi.getAll({ search, category: catFilter, limit: 600 }),
+        productsApi.getAll({ search, category: catFilter, limit: 500 }),
         categoriesApi.getAll(),
       ]);
-      setProducts(pr.data.products || []);
-      setTotal(pr.data.total || 0);
-      setCategories(cr.data || []);
+      setProducts(Array.isArray(pr.data?.products) ? pr.data.products : []);
+      setTotal(pr.data?.total || 0);
+      setCategories(Array.isArray(cr.data) ? cr.data : []);
     } catch { toast.error('Xato'); }
-    finally { setLoading(false); }
-  };
-  useEffect(() => { load(); }, [search, catFilter]);
+    finally {
+      setLoading(false);
+      if (keepScroll) setTimeout(() => window.scrollTo({ top: scrollRef.current }), 50);
+    }
+  }, [search, catFilter]);
 
-  const openCreate = () => { setEditId(null); setForm(empty); setFiles([]); setPreviews([]); setExistingImgs([]); setModal(true); };
+  useEffect(() => { load(); }, [load]);
+
+  const openCreate = () => {
+    setEditId(null); setForm(empty); setFiles([]);
+    setPreviews([]); setExistingImgs([]); setModal(true);
+  };
+
   const openEdit = (p) => {
+    scrollRef.current = window.scrollY;
     setEditId(p.id);
-    setForm({ name: p.name, description: p.description || '', price: p.price, old_price: p.old_price || '', cost_price: p.cost_price || '', stock: p.stock, category_id: p.category_id || '', badge: p.badge || '', specs: p.specs?.length ? p.specs : [{ key: '', val: '' }], image_urls: '' });
-    setExistingImgs(p.images || []); setFiles([]); setPreviews([]); setModal(true);
+    setForm({
+      name: p.name, description: p.description || '',
+      price: p.price, old_price: p.old_price || '',
+      cost_price: p.cost_price || '', stock: p.stock,
+      category_id: p.category_id || '', badge: p.badge || '',
+      specs: p.specs?.length ? p.specs : [{ key: '', val: '' }],
+      image_urls: ''
+    });
+    setExistingImgs(p.images || []); setFiles([]); setPreviews([]);
+    setModal(true);
   };
 
   const handleFiles = (e) => {
     const sel = Array.from(e.target.files);
     setFiles(prev => [...prev, ...sel]);
-    sel.forEach(f => { const r = new FileReader(); r.onload = ev => setPreviews(p => [...p, ev.target.result]); r.readAsDataURL(f); });
+    sel.forEach(f => {
+      const r = new FileReader();
+      r.onload = ev => setPreviews(p => [...p, ev.target.result]);
+      r.readAsDataURL(f);
+    });
   };
 
   const handleSave = async (e) => {
@@ -74,10 +162,10 @@ export default function AdminProducts() {
       fd.append('description', form.description || '');
       fd.append('price', form.price);
       fd.append('stock', form.stock || '0');
-      if (form.old_price) fd.append('old_price', form.old_price);
-      if (form.cost_price) fd.append('cost_price', form.cost_price);
+      if (form.old_price)   fd.append('old_price',   form.old_price);
+      if (form.cost_price)  fd.append('cost_price',  form.cost_price);
       if (form.category_id) fd.append('category_id', form.category_id);
-      if (form.badge) fd.append('badge', form.badge);
+      if (form.badge)       fd.append('badge',       form.badge);
       fd.append('specs', JSON.stringify(form.specs.filter(s => s.key && s.val)));
       files.forEach(f => fd.append('images', f));
       if (form.image_urls.trim()) {
@@ -86,31 +174,32 @@ export default function AdminProducts() {
       if (editId) {
         const orig = products.find(p => p.id === editId);
         const rmImages = (orig?.images || []).filter(i => !existingImgs.find(e => e.url === i.url));
-const rmIds = rmImages.map(i => i.fileId || i.filename).filter(Boolean);
-if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
+        const rmIds = rmImages.map(i => i.fileId || i.filename).filter(Boolean);
+        if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
         await productsApi.update(editId, fd);
         toast.success('Yangilandi');
       } else {
         await productsApi.create(fd);
         toast.success('Yaratildi');
       }
-      setModal(false); load();
+      setModal(false);
+      load(true);
     } catch (err) { toast.error(err.response?.data?.error || 'Xato'); }
     finally { setSaving(false); }
   };
 
   const del = async (id) => {
     if (!window.confirm("O'chirasizmi?")) return;
-    try { await productsApi.delete(id); toast.success("O'chirildi"); load(); }
+    scrollRef.current = window.scrollY;
+    try { await productsApi.delete(id); toast.success("O'chirildi"); load(true); }
     catch (err) { toast.error(err.response?.data?.error || 'Xato'); }
   };
 
   const sf = (k, v) => setForm(p => ({ ...p, [k]: v }));
   const addSpec = () => setForm(p => ({ ...p, specs: [...p.specs, { key: '', val: '' }] }));
-  const rmSpec = (i) => setForm(p => ({ ...p, specs: p.specs.filter((_, j) => j !== i) }));
+  const rmSpec  = (i) => setForm(p => ({ ...p, specs: p.specs.filter((_, j) => j !== i) }));
 
-  // Foyda preview (modal da)
-  const previewProfit = profitCalc(form.price, form.cost_price);
+  const previewProfit   = profitCalc(form.price, form.cost_price);
   const previewDiscount = discountPercent(form.price, form.old_price);
 
   return (
@@ -123,7 +212,6 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
         <button onClick={openCreate} className="btn-primary"><Plus size={16} /> Yangi mahsulot</button>
       </div>
 
-      {/* Filters */}
       <div className="card p-4 flex gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600" />
@@ -136,13 +224,12 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
         </select>
       </div>
 
-      {/* Table */}
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-800/50 text-xs text-slate-600 border-b border-slate-800">
               <tr>
-                {['Rasm', 'Nom', 'Narx', 'Sotib olish', 'Foyda', 'Stok', 'Kategoriya', ''].map(h => (
+                {['Rasm','Nom','Narx','Sotib olish','Foyda','Stok','Kategoriya',''].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-black whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -158,7 +245,7 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                 return (
                   <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="w-10 h-10 bg-slate-800 rounded-xl overflow-hidden border border-slate-700 flex-shrink-0">
+                      <div className="w-10 h-10 bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
                         {p.images?.[0]?.url
                           ? <img src={p.images[0].url} alt="" className="w-full h-full object-cover" />
                           : <Package size={16} className="m-auto mt-2.5 text-slate-600" />}
@@ -176,18 +263,18 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                       {p.cost_price ? fmt(p.cost_price) : <span className="text-slate-700">—</span>}
                     </td>
                     <td className="px-4 py-3 text-sm font-bold whitespace-nowrap">
-                      {profit !== null ? (
-                        <span className={profit >= 0 ? 'text-violet-400' : 'text-rose-400'}>
-                          {profit >= 0 ? '+' : ''}{fmt(profit)}
-                        </span>
-                      ) : <span className="text-slate-700">—</span>}
+                      {profit !== null
+                        ? <span className={profit >= 0 ? 'text-violet-400' : 'text-rose-400'}>{profit >= 0 ? '+' : ''}{fmt(profit)}</span>
+                        : <span className="text-slate-700">—</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-sm font-black ${p.stock === 0 ? 'text-rose-400' : p.stock <= 5 ? 'text-amber-400' : 'text-slate-400'}`}>
-                        {p.stock} {p.stock <= 5 && p.stock > 0 && <AlertTriangle size={12} className="inline ml-0.5" />}
+                        {p.stock}{p.stock <= 5 && p.stock > 0 && <AlertTriangle size={12} className="inline ml-0.5" />}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-slate-600">{p.category_name || '—'}</td>
+                    <td className="px-4 py-3">
+                      <CategoryPicker product={p} categories={categories} onSave={() => load(true)} />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1">
                         <button onClick={() => openEdit(p)} className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-800 text-slate-600 hover:text-violet-400 transition-colors"><Pencil size={14} /></button>
@@ -202,7 +289,6 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
         </div>
       </div>
 
-      {/* Modal */}
       {modal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto"
           onClick={e => e.target === e.currentTarget && setModal(false)}>
@@ -221,8 +307,6 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                 <textarea className="input resize-none" rows={2} placeholder="Mahsulot haqida..."
                   value={form.description} onChange={e => sf('description', e.target.value)} />
               </div>
-
-              {/* Prices */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Sotish narxi * (so'm)</label>
@@ -231,19 +315,16 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Eski narx (chegirma uchun)</label>
                   <input className="input" type="number" placeholder="120000" value={form.old_price} onChange={e => sf('old_price', e.target.value)} />
-                  {previewDiscount && <p className="text-xs text-rose-400 mt-1">Chegirma: -{previewDiscount}% (eski narxdan)</p>}
+                  {previewDiscount && <p className="text-xs text-rose-400 mt-1">Chegirma: -{previewDiscount}%</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">
-                    Sotib olish narxi (so'm)
-                    <span className="text-slate-600 ml-1 normal-case font-normal">— faqat admin</span>
-                  </label>
+                  <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Sotib olish narxi <span className="text-slate-600 normal-case font-normal">— faqat admin</span></label>
                   <input className="input" type="number" placeholder="65000" value={form.cost_price} onChange={e => sf('cost_price', e.target.value)} />
                   {previewProfit !== null && (
                     <p className={`text-xs mt-1 font-bold ${previewProfit >= 0 ? 'text-violet-400' : 'text-rose-400'}`}>
-                      Foyda: {previewProfit >= 0 ? '+' : ''}{fmt(previewProfit)} so'm / dona
+                      Foyda: {previewProfit >= 0 ? '+' : ''}{fmt(previewProfit)} so'm
                     </p>
                   )}
                 </div>
@@ -252,7 +333,6 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                   <input className="input" type="number" placeholder="100" value={form.stock} onChange={e => sf('stock', e.target.value)} />
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Kategoriya</label>
@@ -268,11 +348,8 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                   </select>
                 </div>
               </div>
-
-              {/* Images */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Rasmlar (max 5 ta)</label>
-                {/* Existing images */}
                 {existingImgs.length > 0 && (
                   <div className="flex gap-2 flex-wrap mb-3">
                     {existingImgs.map((img, i) => (
@@ -286,7 +363,6 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                     ))}
                   </div>
                 )}
-                {/* New file previews */}
                 {previews.length > 0 && (
                   <div className="flex gap-2 flex-wrap mb-3">
                     {previews.map((p, i) => (
@@ -313,8 +389,6 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                 </div>
                 <input type="file" ref={fileRef} accept="image/*" multiple className="hidden" onChange={handleFiles} />
               </div>
-
-              {/* Specs */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Texnik xususiyatlar</label>
@@ -334,7 +408,6 @@ if (rmIds.length) fd.append('remove_images', JSON.stringify(rmIds));
                   ))}
                 </div>
               </div>
-
               <div className="flex gap-3 pt-1">
                 <button type="submit" disabled={saving} className="btn-primary flex-1 justify-center">
                   {saving ? 'Saqlanmoqda...' : editId ? 'Yangilash' : 'Yaratish'}
