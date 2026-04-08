@@ -17,6 +17,12 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       await login(password);
+      
+      // ✅ MANA SHU QATORNI QO'SHDIK:
+      // Muvaffaqiyatli kirganda brauzer xotirasiga saqlaymiz
+      localStorage.setItem('isRoboAdmin', 'true');
+      
+      toast.success('Xush kelibsiz, Admin!');
       navigate('/robomarket-dashboard-2025');
     } catch {
       toast.error('Parol noto\'g\'ri');
