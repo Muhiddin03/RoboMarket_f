@@ -3,6 +3,7 @@ import { fmtDate, fmtDateTime } from '../../utils/date';
 import { Eye, Trash2, X, ChevronDown, TrendingUp } from 'lucide-react';
 import { ordersApi } from '../../utils/api';
 import toast from 'react-hot-toast';
+import { MessageSquare, PackageX } from 'lucide-react';
 
 const STATUSES = [
   { v: '', label: 'Barchasi' },
@@ -36,8 +37,11 @@ export default function AdminOrders() {
   useEffect(() => { load(); }, [filter]);
 
   const openOrder = async (o) => {
-    setSelected(o);
+    
     setOrderProfit(null);
+      setSelected(o);
+  setAdminNote(o.admin_note || '');
+  setOutOfStock(o.out_of_stock_items || []);
     // Zakazdan foyda hisoblash
     try {
       const token = localStorage.getItem('admin_token');
@@ -66,6 +70,26 @@ export default function AdminOrders() {
     try { await ordersApi.delete(id); toast.success("O'chirildi"); setSelected(null); load(); }
     catch { toast.error('Xato'); }
   };
+  const [adminNote, setAdminNote]   = useState('');
+const [outOfStock, setOutOfStock] = useState([]);
+const [savingNote, setSavingNote] = useState(false);
+
+const saveNote = async () => {
+  setSavingNote(true);
+  try {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    const token   = localStorage.getItem('admin_token');
+    await fetch(`${API_URL}/orders/${selected.id}/note`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ admin_note: adminNote, out_of_stock_items: outOfStock }),
+    });
+    toast.success('Saqlandi');
+    setSelected(p => ({ ...p, admin_note: adminNote, out_of_stock_items: outOfStock }));
+    load();
+  } catch { toast.error('Xato'); }
+  finally { setSavingNote(false); }
+};
 
   return (
     <div className="space-y-5">
@@ -198,6 +222,45 @@ export default function AdminOrders() {
                 <select value={selected.status} onChange={e => updateStatus(selected.id, e.target.value)} className="select flex-1">
                   {STATUSES.slice(1).map(s => <option key={s.v} value={s.v}>{s.label}</option>)}
                 </select>
+                {/* Admin javob */}
+<div className="space-y-3">
+  <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide flex items-center gap-2">
+    <MessageSquare size={13}/> Mijozga javob / izoh
+  </h3>
+  <textarea className="input resize-none w-full" rows={3}
+    placeholder="Mijozga ko'rinadigan javob yozing..."
+    value={adminNote} onChange={e => setAdminNote(e.target.value)} />
+
+  {/* Tugagan mahsulotlar */}
+  {(selected.items || []).length > 0 && (
+    <div>
+      <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide mb-2 flex items-center gap-2">
+        <PackageX size={13}/> Tugagan mahsulotlar
+      </h3>
+      <div className="space-y-1.5">
+        {(selected.items || []).map((item, i) => (
+          <label key={i} className="flex items-center gap-3 cursor-pointer group">
+            <input type="checkbox"
+              checked={outOfStock.includes(item.name)}
+              onChange={e => {
+                if (e.target.checked) setOutOfStock(p => [...p, item.name]);
+                else setOutOfStock(p => p.filter(n => n !== item.name));
+              }}
+              className="w-4 h-4 rounded accent-violet-600" />
+            <span className={`text-sm transition-colors ${outOfStock.includes(item.name) ? 'text-rose-400 line-through' : 'text-slate-300'}`}>
+              {item.name}
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <button onClick={saveNote} disabled={savingNote}
+    className="btn-primary w-full justify-center py-2.5">
+    {savingNote ? 'Saqlanmoqda...' : 'Saqlash'}
+  </button>
+</div>
               </div>
             </div>
           </div>

@@ -99,7 +99,7 @@ export default function AdminSettings() {
           <input className="input" placeholder="123456789"
             value={s.telegram_chat_id || ''} onChange={e => set('telegram_chat_id', e.target.value)} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        {/* <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Yetkazish narxi (so'm)</label>
             <input className="input" type="number" placeholder="25000"
@@ -110,7 +110,34 @@ export default function AdminSettings() {
             <input className="input" type="number" placeholder="500000"
               value={s.free_delivery_from || ''} onChange={e => set('free_delivery_from', e.target.value)} />
           </div>
-        </div>
+        </div> */}
+        {/* Yetkazib berish on/off */}
+<div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl border border-slate-700">
+  <div>
+    <div className="text-sm font-bold text-slate-200">Yetkazib berish</div>
+    <div className="text-xs text-slate-500">O'chirilsa faqat "Olib ketish" qoladi</div>
+  </div>
+  <button type="button"
+    onClick={() => set('delivery_enabled', s.delivery_enabled === 'false' ? 'true' : 'false')}
+    className={`w-12 h-6 rounded-full transition-all relative ${s.delivery_enabled === 'false' ? 'bg-slate-700' : 'bg-violet-600'}`}>
+    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${s.delivery_enabled === 'false' ? 'left-0.5' : 'left-6'}`} />
+  </button>
+</div>
+
+{s.delivery_enabled !== 'false' && (
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Yetkazish narxi (so'm)</label>
+      <input className="input" type="number" placeholder="25000"
+        value={s.delivery_cost || ''} onChange={e => set('delivery_cost', e.target.value)} />
+    </div>
+    <div>
+      <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Bepul yetkazish (so'm)</label>
+      <input className="input" type="number" placeholder="500000"
+        value={s.free_delivery_from || ''} onChange={e => set('free_delivery_from', e.target.value)} />
+    </div>
+  </div>
+)}
         <div className="flex gap-3 pt-1">
           <button type="submit" disabled={saving} className="btn-primary">
             <Save size={15} />{saving ? 'Saqlanmoqda...' : 'Saqlash'}

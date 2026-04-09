@@ -11,6 +11,7 @@ import { ordersApi } from '../utils/api';
 import toast from 'react-hot-toast';
 import { useCustomer } from '../context/CustomerContext';
 import PinSetupModal from '../components/ui/PinSetupModal';
+import { settingsApi } from '../utils/api';
 
 const CITIES = [
   'Toshkent shahri','Toshkent viloyati','Andijon','Buxoro',"Farg'ona",
@@ -47,6 +48,14 @@ export default function CartPage() {
     }
     return acc;
   }, 0);
+
+  const [deliveryEnabled, setDeliveryEnabled] = useState(true);
+
+useEffect(() => {
+  settingsApi.get().then(r => {
+    if (r.data?.delivery_enabled === 'false') setDeliveryEnabled(false);
+  }).catch(() => {});
+}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -240,8 +249,9 @@ export default function CartPage() {
               <h3 className="font-black text-white mb-4 font-display">Yetkazib berish</h3>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 {[
-                  { v: 'pickup', label: "O'zi olib ketish", sub: "Do'kondan bepul", Icon: Store },
-                  { v: 'delivery', label: "Yetkazib berish", sub: "Butun O'zbekiston", Icon: Truck },
+  { v: 'pickup', label: "O'zi olib ketish", sub: "Do'kondan bepul", Icon: Store },
+  ...(deliveryEnabled ? [{ v: 'delivery', label: "Yetkazib berish", sub: "Butun O'zbekiston", Icon: Truck }] : []),
+
                 ].map(({ v, label, sub, Icon }) => (
                   <button key={v} type="button" onClick={() => setDeliveryType(v)}
                     className={`p-4 rounded-xl border-2 text-left transition-all

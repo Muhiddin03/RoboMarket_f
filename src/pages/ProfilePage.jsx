@@ -5,6 +5,7 @@ import { Package, Clock, CheckCircle, XCircle, Truck, RefreshCw,
          ChevronDown, ChevronUp, LogOut, User, Phone, Lock, Eye, EyeOff } from 'lucide-react';
 import BackButton from '../components/ui/BackButton';
 import toast from 'react-hot-toast';
+import { MessageSquare, PackageX } from 'lucide-react';
 
 const STATUS = {
   new:        { label: 'Yangi',         color: 'text-blue-400   bg-blue-900/20   border-blue-800/40',  icon: Clock },
@@ -58,6 +59,7 @@ function OrderCard({ order }) {
                 <span className="text-sm font-bold text-white flex-shrink-0">{fmt(item.total)} so'm</span>
               </div>
             ))}
+            
           </div>
           <div className="border-t border-slate-800 pt-3 space-y-1">
             {order.discount_amount>0 && (
@@ -87,6 +89,29 @@ function OrderCard({ order }) {
           </div>
         </div>
       )}
+      {/* Admin javob */}
+{order.admin_note && (
+  <div className="flex items-start gap-2 p-3 bg-violet-900/20 border border-violet-800/40 rounded-xl">
+    <MessageSquare size={14} className="text-violet-400 flex-shrink-0 mt-0.5" />
+    <div>
+      <div className="text-xs font-bold text-violet-400 mb-1">Do'kondan javob:</div>
+      <div className="text-xs text-slate-300">{order.admin_note}</div>
+    </div>
+  </div>
+)}
+
+{/* Tugagan mahsulotlar */}
+{order.out_of_stock_items?.length > 0 && (
+  <div className="flex items-start gap-2 p-3 bg-rose-900/20 border border-rose-800/40 rounded-xl">
+    <PackageX size={14} className="text-rose-400 flex-shrink-0 mt-0.5" />
+    <div>
+      <div className="text-xs font-bold text-rose-400 mb-1">Omborda tugagan:</div>
+      {order.out_of_stock_items.map((name, i) => (
+        <div key={i} className="text-xs text-slate-400 line-through">{name}</div>
+      ))}
+    </div>
+  </div>
+)}
     </div>
   );
 }
