@@ -1,29 +1,32 @@
 import { useState } from 'react';
 import { useCustomer } from '../context/CustomerContext';
 import { maskPhone, isValidPhone } from '../utils/phone';
-import { Package, Clock, CheckCircle, XCircle, Truck, RefreshCw,
-         ChevronDown, ChevronUp, LogOut, User, Phone, Lock, Eye, EyeOff } from 'lucide-react';
+import {
+  Package, Clock, CheckCircle, XCircle, Truck, RefreshCw,
+  ChevronDown, ChevronUp, LogOut, User, Phone, Lock, Eye, EyeOff,
+  MessageSquare, PackageX
+} from 'lucide-react';
 import BackButton from '../components/ui/BackButton';
 import toast from 'react-hot-toast';
-import { MessageSquare, PackageX } from 'lucide-react';
 
 const STATUS = {
-  new:        { label: 'Yangi',         color: 'text-blue-400   bg-blue-900/20   border-blue-800/40',  icon: Clock },
-  processing: { label: 'Jarayonda',     color: 'text-amber-400  bg-amber-900/20  border-amber-800/40', icon: RefreshCw },
-  shipped:    { label: "Yo'lda",        color: 'text-violet-400 bg-violet-900/20 border-violet-800/40',icon: Truck },
-  delivered:  { label: 'Yetkazildi',    color: 'text-green-400  bg-green-900/20  border-green-800/40', icon: CheckCircle },
-  cancelled:  { label: 'Bekor qilindi', color: 'text-rose-400   bg-rose-900/20   border-rose-800/40',  icon: XCircle },
+  new:        { label: 'Yangi',         color: 'text-blue-400   bg-blue-900/20   border-blue-800/40',   icon: Clock },
+  processing: { label: 'Jarayonda',     color: 'text-amber-400  bg-amber-900/20  border-amber-800/40',  icon: RefreshCw },
+  shipped:    { label: "Yo'lda",        color: 'text-violet-400 bg-violet-900/20 border-violet-800/40', icon: Truck },
+  delivered:  { label: 'Yetkazildi',    color: 'text-green-400  bg-green-900/20  border-green-800/40',  icon: CheckCircle },
+  cancelled:  { label: 'Bekor qilindi', color: 'text-rose-400   bg-rose-900/20   border-rose-800/40',   icon: XCircle },
 };
 
-const fmt   = n => Number(n||0).toLocaleString('uz-UZ');
+const fmt   = n => Number(n || 0).toLocaleString('uz-UZ');
 const fmtDt = d => new Date(d).toLocaleDateString('uz-UZ', {
-  timeZone:'Asia/Tashkent', day:'2-digit', month:'2-digit', year:'numeric'
+  timeZone: 'Asia/Tashkent', day: '2-digit', month: '2-digit', year: 'numeric'
 });
 
 function OrderCard({ order }) {
   const [open, setOpen] = useState(false);
-  const st = STATUS[order.status] || STATUS.new;
+  const st   = STATUS[order.status] || STATUS.new;
   const Icon = st.icon;
+
   return (
     <div className="card border border-slate-800 overflow-hidden">
       <button onClick={() => setOpen(o => !o)}
@@ -46,10 +49,12 @@ function OrderCard({ order }) {
           {open ? <ChevronUp size={15} className="text-slate-500"/> : <ChevronDown size={15} className="text-slate-500"/>}
         </div>
       </button>
+
       {open && (
         <div className="border-t border-slate-800 p-4 space-y-3">
+          {/* Mahsulotlar */}
           <div className="space-y-2">
-            {(order.items||[]).map((item,i) => (
+            {(order.items || []).map((item, i) => (
               <div key={i} className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-1.5 h-1.5 bg-violet-500 rounded-full flex-shrink-0"/>
@@ -59,16 +64,17 @@ function OrderCard({ order }) {
                 <span className="text-sm font-bold text-white flex-shrink-0">{fmt(item.total)} so'm</span>
               </div>
             ))}
-            
           </div>
+
+          {/* Jami */}
           <div className="border-t border-slate-800 pt-3 space-y-1">
-            {order.discount_amount>0 && (
+            {order.discount_amount > 0 && (
               <div className="flex justify-between text-xs">
                 <span className="text-slate-500">Chegirma</span>
                 <span className="text-green-400 font-bold">-{fmt(order.discount_amount)} so'm</span>
               </div>
             )}
-            {order.delivery_cost>0 && (
+            {order.delivery_cost > 0 && (
               <div className="flex justify-between text-xs">
                 <span className="text-slate-500">Yetkazish</span>
                 <span className="text-slate-300">{fmt(order.delivery_cost)} so'm</span>
@@ -79,39 +85,42 @@ function OrderCard({ order }) {
               <span className="text-white">{fmt(order.total)} so'm</span>
             </div>
           </div>
+
+          {/* Holat */}
           <div className={`flex items-center gap-2 p-3 rounded-xl border text-xs font-bold ${st.color}`}>
             <Icon size={13}/>
-            {order.status==='new'        && "Qabul qilindi, operator ko'rib chiqmoqda"}
-            {order.status==='processing' && 'Tayyorlanmoqda'}
-            {order.status==='shipped'    && "Yo'lda, tez orada yetib keladi"}
-            {order.status==='delivered'  && 'Muvaffaqiyatli yetkazildi!'}
-            {order.status==='cancelled'  && "Bekor qilindi. Operator bilan bog'laning"}
+            {order.status === 'new'        && "Qabul qilindi, operator ko'rib chiqmoqda"}
+            {order.status === 'processing' && 'Tayyorlanmoqda'}
+            {order.status === 'shipped'    && "Yo'lda, tez orada yetib keladi"}
+            {order.status === 'delivered'  && 'Muvaffaqiyatli yetkazildi!'}
+            {order.status === 'cancelled'  && "Bekor qilindi. Operator bilan bog'laning"}
           </div>
+
+          {/* Admin javob */}
+          {order.admin_note && (
+            <div className="flex items-start gap-2 p-3 bg-violet-900/20 border border-violet-800/40 rounded-xl">
+              <MessageSquare size={14} className="text-violet-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="text-xs font-bold text-violet-400 mb-1">Do'kondan javob:</div>
+                <div className="text-xs text-slate-300">{order.admin_note}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Tugagan mahsulotlar */}
+          {Array.isArray(order.out_of_stock_items) && order.out_of_stock_items.length > 0 && (
+            <div className="flex items-start gap-2 p-3 bg-rose-900/20 border border-rose-800/40 rounded-xl">
+              <PackageX size={14} className="text-rose-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="text-xs font-bold text-rose-400 mb-1">Omborda tugagan:</div>
+                {order.out_of_stock_items.map((name, i) => (
+                  <div key={i} className="text-xs text-slate-400 line-through">{name}</div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
-      {/* Admin javob */}
-{order.admin_note && (
-  <div className="flex items-start gap-2 p-3 bg-violet-900/20 border border-violet-800/40 rounded-xl">
-    <MessageSquare size={14} className="text-violet-400 flex-shrink-0 mt-0.5" />
-    <div>
-      <div className="text-xs font-bold text-violet-400 mb-1">Do'kondan javob:</div>
-      <div className="text-xs text-slate-300">{order.admin_note}</div>
-    </div>
-  </div>
-)}
-
-{/* Tugagan mahsulotlar */}
-{order.out_of_stock_items?.length > 0 && (
-  <div className="flex items-start gap-2 p-3 bg-rose-900/20 border border-rose-800/40 rounded-xl">
-    <PackageX size={14} className="text-rose-400 flex-shrink-0 mt-0.5" />
-    <div>
-      <div className="text-xs font-bold text-rose-400 mb-1">Omborda tugagan:</div>
-      {order.out_of_stock_items.map((name, i) => (
-        <div key={i} className="text-xs text-slate-400 line-through">{name}</div>
-      ))}
-    </div>
-  </div>
-)}
     </div>
   );
 }

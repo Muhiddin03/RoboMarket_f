@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { fmtDate, fmtDateTime } from '../../utils/date';
-import { Eye, Trash2, X, ChevronDown, TrendingUp } from 'lucide-react';
+import { Eye, Trash2, X, ChevronDown, TrendingUp, MessageSquare, PackageX } from 'lucide-react';
 import { ordersApi } from '../../utils/api';
 import toast from 'react-hot-toast';
-import { MessageSquare, PackageX } from 'lucide-react';
 
 const STATUSES = [
   { v: '', label: 'Barchasi' },
@@ -14,21 +13,25 @@ const STATUSES = [
   { v: 'cancelled', label: 'Bekor', cls: 'bg-rose-900/40 text-rose-400 border-rose-800/50' },
 ];
 const scls = (s) => STATUSES.find(o => o.v === s)?.cls || 'bg-slate-800 text-slate-500 border-slate-700';
-const slbl = (s) => STATUSES.find(o => o.v === s)?.label || s;
-const fmt = (n) => Number(n || 0).toLocaleString('uz-UZ');
+const fmt  = (n) => Number(n || 0).toLocaleString('uz-UZ');
 
 export default function AdminOrders() {
-  const [orders, setOrders] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('');
-  const [selected, setSelected] = useState(null);
+  const [orders, setOrders]       = useState([]);
+  const [total, setTotal]         = useState(0);
+  const [loading, setLoading]     = useState(true);
+  const [filter, setFilter]       = useState('');
+  const [selected, setSelected]   = useState(null);
   const [orderProfit, setOrderProfit] = useState(null);
+
+  // ← State'lar funksiyalardan OLDIN e'lon qilinishi shart
+  const [adminNote, setAdminNote]   = useState('');
+  const [outOfStock, setOutOfStock] = useState([]);
+  const [savingNote, setSavingNote] = useState(false);
 
   const load = async () => {
     setLoading(true);
     try {
-      const r = await ordersApi.getAll({ status: filter, limit: 100 });
+      const r = await ordersApi.getAll({ status: filter, limit: 200 });
       setOrders(r.data.orders || []);
       setTotal(r.data.total || 0);
     } catch { toast.error('Xato'); }
@@ -37,22 +40,17 @@ export default function AdminOrders() {
   useEffect(() => { load(); }, [filter]);
 
   const openOrder = async (o) => {
-    
+    setSelected(o);
+    setAdminNote(o.admin_note || '');
+    setOutOfStock(Array.isArray(o.out_of_stock_items) ? o.out_of_stock_items : []);
     setOrderProfit(null);
-      setSelected(o);
-  setAdminNote(o.admin_note || '');
-  setOutOfStock(o.out_of_stock_items || []);
-    // Zakazdan foyda hisoblash
     try {
-      const token = localStorage.getItem('admin_token');
+      const token   = localStorage.getItem('admin_token');
       const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const r = await fetch(`${API_URL}/orders/${o.id}/profit`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (r.ok) {
-        const d = await r.json();
-        setOrderProfit(d.profit);
-      }
+      if (r.ok) { const d = await r.json(); setOrderProfit(d.profit); }
     } catch {}
   };
 
@@ -65,31 +63,29 @@ export default function AdminOrders() {
     } catch { toast.error('Xato'); }
   };
 
+  const saveNote = async () => {
+    setSavingNote(true);
+    try {
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const token   = localStorage.getItem('admin_token');
+      const r = await fetch(`${API_URL}/orders/${selected.id}/note`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ admin_note: adminNote, out_of_stock_items: outOfStock }),
+      });
+      if (!r.ok) throw new Error('Xato');
+      toast.success('Saqlandi');
+      setSelected(p => ({ ...p, admin_note: adminNote, out_of_stock_items: outOfStock }));
+      load();
+    } catch { toast.error('Saqlashda xato'); }
+    finally { setSavingNote(false); }
+  };
+
   const del = async (id) => {
     if (!window.confirm("O'chirasizmi?")) return;
     try { await ordersApi.delete(id); toast.success("O'chirildi"); setSelected(null); load(); }
     catch { toast.error('Xato'); }
   };
-  const [adminNote, setAdminNote]   = useState('');
-const [outOfStock, setOutOfStock] = useState([]);
-const [savingNote, setSavingNote] = useState(false);
-
-const saveNote = async () => {
-  setSavingNote(true);
-  try {
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-    const token   = localStorage.getItem('admin_token');
-    await fetch(`${API_URL}/orders/${selected.id}/note`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ admin_note: adminNote, out_of_stock_items: outOfStock }),
-    });
-    toast.success('Saqlandi');
-    setSelected(p => ({ ...p, admin_note: adminNote, out_of_stock_items: outOfStock }));
-    load();
-  } catch { toast.error('Xato'); }
-  finally { setSavingNote(false); }
-};
 
   return (
     <div className="space-y-5">
@@ -100,7 +96,6 @@ const saveNote = async () => {
         </div>
       </div>
 
-      {/* Status filter */}
       <div className="card p-3 flex gap-2 flex-wrap">
         {STATUSES.map(s => (
           <button key={s.v} onClick={() => setFilter(s.v)}
@@ -111,13 +106,12 @@ const saveNote = async () => {
         ))}
       </div>
 
-      {/* Table */}
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-800/50 text-xs text-slate-600 border-b border-slate-800">
               <tr>
-                {['Zakaz #', 'Mijoz', 'Tel', 'Yetkazish', 'Jami', 'Sana', 'Holat', ''].map(h => (
+                {['Zakaz #','Mijoz','Tel','Yetkazish','Jami','Sana','Holat',''].map(h => (
                   <th key={h} className="px-4 py-3 text-left font-black whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -170,12 +164,18 @@ const saveNote = async () => {
               <button onClick={() => setSelected(null)} className="w-8 h-8 rounded-xl hover:bg-slate-800 flex items-center justify-center text-slate-500"><X size={16} /></button>
             </div>
             <div className="p-5 space-y-4">
+
+              {/* Mijoz ma'lumotlari */}
               <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-4 text-sm space-y-2">
                 <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide mb-3">Mijoz</h3>
-                {[['Ism', selected.customer_name], ['Tel', selected.customer_phone],
+                {[
+                  ['Ism', selected.customer_name],
+                  ['Tel', selected.customer_phone],
                   ['Yetkazish', selected.delivery_type === 'pickup' ? 'Olib ketish' : 'Yetkazib berish'],
-                  ['Viloyat', selected.customer_city], ['Manzil', selected.customer_address],
-                  ["To'lov", selected.payment_method], ['Izoh', selected.note]
+                  ['Viloyat', selected.customer_city],
+                  ['Manzil', selected.customer_address],
+                  ["To'lov", selected.payment_method],
+                  ['Izoh', selected.note],
                 ].filter(([, v]) => v).map(([k, v]) => (
                   <div key={k} className="flex gap-2">
                     <span className="text-slate-600 w-20 flex-shrink-0 font-semibold">{k}:</span>
@@ -184,6 +184,7 @@ const saveNote = async () => {
                 ))}
               </div>
 
+              {/* Mahsulotlar */}
               <div>
                 <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide mb-3">Mahsulotlar</h3>
                 <div className="space-y-2">
@@ -217,51 +218,54 @@ const saveNote = async () => {
                 </div>
               </div>
 
+              {/* Holat */}
               <div className="flex items-center gap-3 bg-slate-800/50 rounded-2xl p-4">
                 <span className="text-sm font-black text-slate-500 flex-shrink-0">Holat:</span>
                 <select value={selected.status} onChange={e => updateStatus(selected.id, e.target.value)} className="select flex-1">
                   {STATUSES.slice(1).map(s => <option key={s.v} value={s.v}>{s.label}</option>)}
                 </select>
-                {/* Admin javob */}
-<div className="space-y-3">
-  <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide flex items-center gap-2">
-    <MessageSquare size={13}/> Mijozga javob / izoh
-  </h3>
-  <textarea className="input resize-none w-full" rows={3}
-    placeholder="Mijozga ko'rinadigan javob yozing..."
-    value={adminNote} onChange={e => setAdminNote(e.target.value)} />
-
-  {/* Tugagan mahsulotlar */}
-  {(selected.items || []).length > 0 && (
-    <div>
-      <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide mb-2 flex items-center gap-2">
-        <PackageX size={13}/> Tugagan mahsulotlar
-      </h3>
-      <div className="space-y-1.5">
-        {(selected.items || []).map((item, i) => (
-          <label key={i} className="flex items-center gap-3 cursor-pointer group">
-            <input type="checkbox"
-              checked={outOfStock.includes(item.name)}
-              onChange={e => {
-                if (e.target.checked) setOutOfStock(p => [...p, item.name]);
-                else setOutOfStock(p => p.filter(n => n !== item.name));
-              }}
-              className="w-4 h-4 rounded accent-violet-600" />
-            <span className={`text-sm transition-colors ${outOfStock.includes(item.name) ? 'text-rose-400 line-through' : 'text-slate-300'}`}>
-              {item.name}
-            </span>
-          </label>
-        ))}
-      </div>
-    </div>
-  )}
-
-  <button onClick={saveNote} disabled={savingNote}
-    className="btn-primary w-full justify-center py-2.5">
-    {savingNote ? 'Saqlanmoqda...' : 'Saqlash'}
-  </button>
-</div>
               </div>
+
+              {/* Admin javob */}
+              <div className="space-y-3 border-t border-slate-800 pt-4">
+                <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide flex items-center gap-2">
+                  <MessageSquare size={13}/> Mijozga javob
+                </h3>
+                <textarea className="input resize-none w-full" rows={3}
+                  placeholder="Mijozga ko'rinadigan javob yozing..."
+                  value={adminNote} onChange={e => setAdminNote(e.target.value)} />
+
+                {/* Tugagan mahsulotlar */}
+                {(selected.items || []).length > 0 && (
+                  <div>
+                    <h3 className="font-black text-slate-500 text-xs uppercase tracking-wide mb-2 flex items-center gap-2">
+                      <PackageX size={13}/> Tugagan mahsulotlar
+                    </h3>
+                    <div className="space-y-2">
+                      {(selected.items || []).map((item, i) => (
+                        <label key={i} className="flex items-center gap-3 cursor-pointer">
+                          <input type="checkbox"
+                            checked={outOfStock.includes(item.name)}
+                            onChange={e => {
+                              if (e.target.checked) setOutOfStock(p => [...p, item.name]);
+                              else setOutOfStock(p => p.filter(n => n !== item.name));
+                            }}
+                            className="w-4 h-4 rounded accent-violet-600" />
+                          <span className={`text-sm transition-colors ${outOfStock.includes(item.name) ? 'text-rose-400 line-through' : 'text-slate-300'}`}>
+                            {item.name}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <button onClick={saveNote} disabled={savingNote}
+                  className="btn-primary w-full justify-center py-2.5">
+                  {savingNote ? 'Saqlanmoqda...' : 'Saqlash'}
+                </button>
+              </div>
+
             </div>
           </div>
         </div>

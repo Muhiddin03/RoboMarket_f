@@ -10,17 +10,15 @@ export default function AdminSettings() {
     delivery_cost: '25000',
     free_delivery_from: '500000',
   });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [newPass, setNewPass] = useState('');
+  const [loading, setLoading]   = useState(true);
+  const [saving, setSaving]     = useState(false);
+  const [newPass, setNewPass]   = useState('');
   const [showPass, setShowPass] = useState(false);
   const [hashResult, setHashResult] = useState('');
 
   useEffect(() => {
     settingsApi.get()
-      .then(r => {
-        if (r.data) setS(prev => ({ ...prev, ...r.data }));
-      })
+      .then(r => { if (r.data) setS(prev => ({ ...prev, ...r.data })); })
       .catch(() => toast.error('Yuklashda xato'))
       .finally(() => setLoading(false));
   }, []);
@@ -35,9 +33,7 @@ export default function AdminSettings() {
       toast.success('Sozlamalar saqlandi!');
     } catch (err) {
       toast.error('Xato: ' + (err.response?.data?.error || err.message));
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   };
 
   const handleHash = async (e) => {
@@ -46,7 +42,7 @@ export default function AdminSettings() {
     try {
       const r = await authApi.setup(newPass);
       setHashResult(r.data.hash);
-      toast.success('Hash tayyor! .env ga qo\'ying');
+      toast.success("Hash tayyor! .env ga qo'ying");
     } catch { toast.error('Xato'); }
   };
 
@@ -59,7 +55,7 @@ export default function AdminSettings() {
       const r = await fetch(`https://api.telegram.org/bot${s.telegram_bot_token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: s.telegram_chat_id, text: 'RoboMarket bot ishlayapti!' }),
+        body: JSON.stringify({ chat_id: s.telegram_chat_id, text: 'RoboMarket bot ishlayapti! ✅' }),
       });
       const d = await r.json();
       d.ok ? toast.success('Xabar yuborildi!') : toast.error('Bot xato: ' + d.description);
@@ -99,7 +95,9 @@ export default function AdminSettings() {
           <input className="input" placeholder="123456789"
             value={s.telegram_chat_id || ''} onChange={e => set('telegram_chat_id', e.target.value)} />
         </div>
-        {/* <div className="grid grid-cols-2 gap-4">
+
+        {/* Yetkazib berish narxi */}
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Yetkazish narxi (so'm)</label>
             <input className="input" type="number" placeholder="25000"
@@ -109,35 +107,10 @@ export default function AdminSettings() {
             <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Bepul yetkazish (so'm)</label>
             <input className="input" type="number" placeholder="500000"
               value={s.free_delivery_from || ''} onChange={e => set('free_delivery_from', e.target.value)} />
+            <p className="text-xs text-slate-600 mt-1">Shu summadan ko'p bo'lsa yetkazish bepul</p>
           </div>
-        </div> */}
-        {/* Yetkazib berish on/off */}
-<div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl border border-slate-700">
-  <div>
-    <div className="text-sm font-bold text-slate-200">Yetkazib berish</div>
-    <div className="text-xs text-slate-500">O'chirilsa faqat "Olib ketish" qoladi</div>
-  </div>
-  <button type="button"
-    onClick={() => set('delivery_enabled', s.delivery_enabled === 'false' ? 'true' : 'false')}
-    className={`w-12 h-6 rounded-full transition-all relative ${s.delivery_enabled === 'false' ? 'bg-slate-700' : 'bg-violet-600'}`}>
-    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${s.delivery_enabled === 'false' ? 'left-0.5' : 'left-6'}`} />
-  </button>
-</div>
+        </div>
 
-{s.delivery_enabled !== 'false' && (
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Yetkazish narxi (so'm)</label>
-      <input className="input" type="number" placeholder="25000"
-        value={s.delivery_cost || ''} onChange={e => set('delivery_cost', e.target.value)} />
-    </div>
-    <div>
-      <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Bepul yetkazish (so'm)</label>
-      <input className="input" type="number" placeholder="500000"
-        value={s.free_delivery_from || ''} onChange={e => set('free_delivery_from', e.target.value)} />
-    </div>
-  </div>
-)}
         <div className="flex gap-3 pt-1">
           <button type="submit" disabled={saving} className="btn-primary">
             <Save size={15} />{saving ? 'Saqlanmoqda...' : 'Saqlash'}
@@ -170,7 +143,6 @@ export default function AdminSettings() {
             <code className="text-xs break-all bg-slate-800 border border-slate-700 rounded-xl p-3 block select-all font-mono text-slate-300">
               ADMIN_PASSWORD_HASH={hashResult}
             </code>
-            <p className="text-xs text-slate-500 mt-2">Keyin: backend terminali → Ctrl+C → npm run dev</p>
           </div>
         )}
       </form>
